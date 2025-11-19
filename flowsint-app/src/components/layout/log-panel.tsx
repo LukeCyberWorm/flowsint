@@ -6,6 +6,7 @@ import { useEvents } from '@/hooks/use-events'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/api/query-keys'
 import { TerminalLogViewer } from '../terminal'
+import { toast } from 'sonner'
 
 export const LogPanel = memo(() => {
   const { id: sketch_id } = useParams({ strict: false })
@@ -25,8 +26,8 @@ export const LogPanel = memo(() => {
       }
       refetch()
     },
-    onError: (error) => {
-      console.error('Error deleting logs:', error)
+    onError: () => {
+      toast.error('Error deleting logs.')
     }
   })
 

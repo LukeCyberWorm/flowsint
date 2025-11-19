@@ -25,6 +25,14 @@ export type RelationshipType = {
 
 const ITEM_HEIGHT = 56 // Row height used by virtualizer
 
+// Helper function to get attribute keys from node.data
+const getAttributeKeyPairs = (data: Record<string, any> | undefined): string[] => {
+  if (!data) return []
+  const excludedKeys = new Set(['label', 'type', 'created_at', 'src', 'id', 'x', 'y', 'sketch_id'])
+  const keys = Object.keys(data).filter(key => !excludedKeys.has(key)).map((k) => `${k}:${data[k]}`)
+  return keys
+}
+
 // Separate component for node item to avoid hook order issues
 interface NodeItemProps {
   node: GraphNode
@@ -60,34 +68,48 @@ const NodeItem = memo(function NodeItem({
     }
   }, [])
 
+  const attributeKeyPairs = useMemo(() => getAttributeKeyPairs(node.data), [node.data])
+
   return (
     <div className="px-4">
       <div
         className="grid items-center h-[56px] gap-3 text-sm border-b last:border-b-0"
         style={{
-          gridTemplateColumns: '24px 32px 1fr 140px 160px 32px'
+          gridTemplateColumns: '24px 32px 200px 1fr 140px 160px 32px'
         }}
       >
         {/* Checkbox */}
         <div className="flex items-center">
           <Checkbox checked={isSelected} onCheckedChange={handleCheckboxChange} />
         </div>
-
         {/* Icon */}
         <div className="flex items-center justify-center">
           <div className="flex items-center justify-center w-6 h-6 rounded bg-muted">
             <SourceIcon className="h-4 w-4" />
           </div>
         </div>
-
         {/* Label */}
-        <div className="min-w-0 flex justify-start grow">
+        <div className="min-w-0 flex justify-start">
           <button
             onClick={handleNodeClick}
             className="font-medium hover:text-primary hover:underline cursor-pointer truncate p-0"
           >
             <span className="block truncate">{node.data?.label ?? node.id}</span>
           </button>
+        </div>
+        {/* Attributes */}
+        <div className="min-w-0 flex gap-1 overflow-hidden">
+          {attributeKeyPairs.length > 0 ? (
+            <div className="flex gap-1 overflow-hidden">
+              {attributeKeyPairs.map((key) => (
+                <Badge key={key} variant="secondary" className="text-xs shrink-0">
+                  {key}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">-</span>
+          )}
         </div>
 
         {/* Type */}
@@ -124,7 +146,6 @@ export default function NodesTable({ nodes }: NodesTableProps) {
   const setCurrentNode = useGraphStore((s) => s.setCurrentNode)
   const selectedNodes = useGraphStore((s) => s.selectedNodes)
   const setSelectedNodes = useGraphStore((s) => s.setSelectedNodes)
-  const toggleNodeSelection = useGraphStore((s) => s.toggleNodeSelection)
 
   const onNodeClick = useCallback(
     (node: GraphNode) => {
@@ -264,14 +285,14 @@ export default function NodesTable({ nodes }: NodesTableProps) {
       {/* Table Header */}
       <div
         className="grid items-center h-[44px] px-4 bg-muted/50 p-2 rounded-t-lg border text-sm font-medium text-muted-foreground"
-        style={{ gridTemplateColumns: '24px 32px 1fr 140px 160px 32px' }}
+        style={{ gridTemplateColumns: '24px 32px 200px 1fr 140px 160px 32px' }}
       >
         <div className="flex items-center">
           <Checkbox
             checked={isAllSelected}
             ref={(el) => {
               if (el && 'indeterminate' in el) {
-                ;(el as HTMLInputElement).indeterminate = isIndeterminate
+                ; (el as HTMLInputElement).indeterminate = isIndeterminate
               }
             }}
             onCheckedChange={handleSelectAll}
@@ -279,6 +300,7 @@ export default function NodesTable({ nodes }: NodesTableProps) {
         </div>
         <div></div> {/* Icon */}
         <div className="text-left">Label</div>
+        <div className="text-center">Attributes</div>
         <div>Type</div>
         <div>Created</div>
         <div></div> {/* Actions */}

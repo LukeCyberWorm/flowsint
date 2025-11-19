@@ -37,12 +37,6 @@ export const TerminalLogViewer = ({
   // Initialize terminal with welcome message and existing logs
   const handleTerminalReady = useCallback(() => {
     if (!terminalRef.current) return
-
-    console.log('[TerminalLogViewer] Terminal ready, initializing with logs', {
-      logCount: logsRef.current.length,
-      wasInitialized: isInitializedRef.current
-    })
-
     // Write welcome message only if no logs
     if (logsRef.current.length === 0) {
       terminalRef.current.write(formatWelcomeMessage())
@@ -71,12 +65,6 @@ export const TerminalLogViewer = ({
     const previousLogs = previousLogsRef.current
     const currentLogs = logs
 
-    console.log('[TerminalLogViewer] Log update', {
-      previousCount: previousLogs.length,
-      currentCount: currentLogs.length,
-      latestLogs: currentLogs.slice(-3)
-    })
-
     // Find new logs by comparing timestamps and messages
     // This works even when the total length stays the same (e.g., 100 logs with slice)
     const newLogs = currentLogs.filter((currentLog) => {
@@ -88,7 +76,6 @@ export const TerminalLogViewer = ({
     })
 
     if (newLogs.length > 0) {
-      console.log('[TerminalLogViewer] Writing new logs', newLogs.length)
 
       newLogs.forEach((log) => {
         const formattedLog = formatLogEntry(
@@ -102,7 +89,6 @@ export const TerminalLogViewer = ({
 
     // Check if logs were cleared (much shorter than before)
     if (currentLogs.length < previousLogs.length / 2) {
-      console.log('[TerminalLogViewer] Logs cleared, resetting terminal')
       terminalRef.current.clear()
 
       if (currentLogs.length === 0) {

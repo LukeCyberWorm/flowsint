@@ -1,6 +1,6 @@
 import { useChat } from '@/hooks/use-chat'
 import { memo, useEffect, useState, useRef } from 'react'
-import { ChatPanel, ContextList } from './chat-prompt'
+import { ChatPanel } from './chat-prompt'
 import { Button } from '../ui/button'
 import { X, Plus, History } from 'lucide-react'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
@@ -27,6 +27,7 @@ function FloatingChat() {
   const closeChat = useLayoutStore((s) => s.closeChat)
   const messages = useChatState((s) => s.messages)
   const setMessages = useChatState((s) => s.setMessages)
+  const mergeServerMessages = useChatState((s) => s.mergeServerMessages)
   const [view, setView] = useState<'chat' | 'history'>('chat')
 
   const { data: chat, isLoading } = useQuery({
@@ -42,9 +43,10 @@ function FloatingChat() {
 
   useEffect(() => {
     if (chat?.messages) {
-      setMessages(chat.messages)
+      // Merge server messages with local optimistic messages
+      mergeServerMessages(chat.messages)
     }
-  }, [chat, setMessages])
+  }, [chat, mergeServerMessages])
 
   // Chat hook
   const {
@@ -315,13 +317,17 @@ const ChatMessageComponent = ({ message }: { message: ChatMessage }) => {
           className={cn(
             'bg-muted-foreground/5 max-w-[80%] border border-border',
             'p-1 rounded-lg',
-            'flex flex-col items-end overflow-x-hidden'
+            'flex flex-col items-end overflow-x-hidden',
+            message.isOptimistic && 'opacity-60'
           )}
         >
           {/* {message?.context && message.context.length > 0 && <div className='flex items-center w-full overflow-x-auto justify-end mb-2'><ContextList context={message.context} /></div>} */}
           <span className="px-3">
             <MemoizedMarkdown id={message.id} content={message.content} />
           </span>
+          {message.isOptimistic && (
+            <span className="text-xs opacity-50 px-3 pb-1">Sending...</span>
+          )}
         </div>
       </div>
     </MessageContainer>

@@ -49,6 +49,24 @@ export class ChatService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
+
+      // Handle specific error codes with better messages
+      if (response.status === 400) {
+        throw new Error(errorData.detail || 'Bad request')
+      }
+      if (response.status === 429) {
+        throw new Error(
+          errorData.detail ||
+          'Rate limit exceeded. Please wait a moment before trying again.'
+        )
+      }
+      if (response.status === 500) {
+        throw new Error(
+          errorData.detail ||
+          'Server error. Please try again later.'
+        )
+      }
+
       throw new Error(errorData.detail || `Error ${response.status}`)
     }
 
@@ -77,12 +95,23 @@ export class ChatService {
           }
           try {
             const parsed = JSON.parse(data)
+
+            // Check if there's an error in the stream
+            if (parsed.error) {
+              throw new Error(parsed.error)
+            }
+
             if (parsed.content) {
               accumulatedContent += parsed.content
               onChunk(accumulatedContent)
             }
           } catch (e) {
-            console.error('Error parsing SSE data:', data, e)
+            // If it's a parsing error, log it; otherwise rethrow
+            if (e instanceof SyntaxError) {
+              console.error('Error parsing SSE data:', data, e)
+            } else {
+              throw e
+            }
           }
         }
       }

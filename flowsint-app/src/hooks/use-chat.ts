@@ -42,6 +42,7 @@ export const useChat = ({ onContentUpdate, onSuccess, editor }: UseChatOptions) 
   const setCurrentChatId = useChatState((s) => s.setCurrentChatId)
   const deleteChat = useChatState((s) => s.deleteChat)
   const addMessage = useChatState((s) => s.addMessage)
+  const removeMessage = useChatState((s) => s.removeMessage)
   const { investigationId } = useParams({ strict: false })
   const queryClient = useQueryClient()
 
@@ -99,7 +100,15 @@ export const useChat = ({ onContentUpdate, onSuccess, editor }: UseChatOptions) 
   })
 
   const aiCompletionMutation = useMutation({
-    mutationFn: async ({ chatId, prompt }: { chatId: string; prompt: string }) => {
+    mutationFn: async ({
+      chatId,
+      prompt,
+      optimisticMessageId
+    }: {
+      chatId: string
+      prompt: string
+      optimisticMessageId?: string
+    }) => {
       setIsAiLoading(true)
       try {
         return await chatService.streamChat(
@@ -149,18 +158,30 @@ export const useChat = ({ onContentUpdate, onSuccess, editor }: UseChatOptions) 
         setIsAiLoading(false)
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       onSuccess?.()
-      // Invalidate the current chat query to refresh messages
+
+      // Remove optimistic message after success
+      if (variables.optimisticMessageId) {
+        removeMessage(variables.optimisticMessageId)
+      }
+
+      // Invalidate the current chat query to refresh messages from server
       if (currentChatId) {
         onContentUpdate('')
         queryClient.invalidateQueries({ queryKey: queryKeys.chats.detail(currentChatId) })
       }
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       console.error('Chat error:', error)
+
+      // Rollback: Remove optimistic message on error
+      if (variables.optimisticMessageId) {
+        removeMessage(variables.optimisticMessageId)
+      }
+
       toast.error(
-        'Failed to get AI completion: ' + (error instanceof Error ? error.message : 'Unknown error')
+        'Failed to send message: ' + (error instanceof Error ? error.message : 'Unknown error')
       )
     }
   })
@@ -190,26 +211,33 @@ export const useChat = ({ onContentUpdate, onSuccess, editor }: UseChatOptions) 
         return
       }
     } else {
+      // Optimistic insert: Create temporary message with unique ID
+      const optimisticMessageId = `optimistic-${Date.now()}-${Math.random()}`
+
+      // Add optimistic message to UI immediately
       addMessage({
         content: customPrompt.trim(),
         context: selectedNodes.map((node) => node.data.label),
         is_bot: false,
-        id: new Date().getTime().toString(),
+        id: optimisticMessageId,
         created_at: new Date().toISOString(),
-        chatId: currentChatId
+        chatId: currentChatId,
+        isOptimistic: true
       })
-      await handlePromptWithChat(currentChatId)
+
+      // Send to server with optimistic ID for potential rollback
+      await handlePromptWithChat(currentChatId, optimisticMessageId)
     }
   }
 
-  const handlePromptWithChat = async (chatId: string) => {
+  const handlePromptWithChat = async (chatId: string, optimisticMessageId?: string) => {
     if (!customPrompt.trim()) {
       toast.error('Please enter a prompt')
       return
     }
     const fullPrompt = `${customPrompt}`
     setCustomPrompt('')
-    aiCompletionMutation.mutate({ chatId, prompt: fullPrompt })
+    aiCompletionMutation.mutate({ chatId, prompt: fullPrompt, optimisticMessageId })
   }
 
   const createNewChat = async (title?: string) => {

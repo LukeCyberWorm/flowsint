@@ -5,6 +5,7 @@ export interface ChatMessage {
   created_at: string
   context?: any
   chatId?: string
+  isOptimistic?: boolean
 }
 
 export interface Chat {

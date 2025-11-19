@@ -169,14 +169,14 @@ export default function RelationshipsTable() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold tracking-tight">Relationships</h2>
-            <p className="text-muted-foreground">
+            <div className="text-muted-foreground">
               <Skeleton className="h-4 w-32 inline-block" />
-            </p>
+            </div>
           </div>
-          <Badge variant="secondary" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             <Skeleton className="h-4 w-8" />
-          </Badge>
+          </div>
         </div>
 
         {/* Search and Filter */}
