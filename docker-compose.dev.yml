@@ -22,12 +22,12 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis for Celery & cache
+  # Redis
   redis:
     image: redis:alpine
     container_name: flowsint-redis-dev
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - flowsint_network
     healthcheck:
@@ -36,15 +36,16 @@ services:
       timeout: 5s
       retries: 5
 
-  # Neo4j graph database
+  # Neo4j (já corrigido para Neo4j 5)
   neo4j:
     image: neo4j:5
     container_name: flowsint-neo4j-dev
+    restart: unless-stopped
     ports:
-      - "7474:7474"  # Web UI
-      - "7687:7687"  # Bolt
+      - "7474:7474"
+      - "7687:7687"
+    env_file: .env
     environment:
-      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_PLUGINS=["apoc"]
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
@@ -54,16 +55,15 @@ services:
       - neo4j_logs_dev:/logs
       - neo4j_import_dev:/var/lib/neo4j/import
       - neo4j_plugins_dev:/plugins
-    restart: unless-stopped
     networks:
       - flowsint_network
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      test: test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  # FastAPI Backend
+  # FastAPI Backend – PORTA CORRIGIDA (5001 no host → 8000 no container)
   api:
     build:
       context: .
@@ -72,21 +72,18 @@ services:
     container_name: flowsint-api-dev
     restart: unless-stopped
     ports:
-      - "5001:5001"
+      - "5001:8000"   # ← MUDANÇA PRINCIPAL
     volumes:
       - ./flowsint-api:/app/flowsint-api
       - ./flowsint-core:/app/flowsint-core
       - ./flowsint-types:/app/flowsint-types
       - ./flowsint-transforms:/app/flowsint-transforms
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file: .env
     environment:
       - DATABASE_URL=postgresql://flowsint:flowsint@postgres:5432/flowsint
       - NEO4J_URI_BOLT=bolt://neo4j:7687
-      - NEO4J_USERNAME=${NEO4J_USERNAME}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - AUTH_SECRET=${AUTH_SECRET}
-      - MASTER_VAULT_KEY_V1=${MASTER_VAULT_KEY_V1}
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6380/0
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,10 +92,10 @@ services:
       neo4j:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]  # ← também corrigido aqui
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
       - flowsint_network
 
@@ -117,13 +114,11 @@ services:
       - ./flowsint-types:/app/flowsint-types
       - ./flowsint-transforms:/app/flowsint-transforms
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file: .env
     environment:
       - DATABASE_URL=postgresql://flowsint:flowsint@postgres:5432/flowsint
       - NEO4J_URI_BOLT=bolt://neo4j:7687
-      - NEO4J_USERNAME=${NEO4J_USERNAME}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - MASTER_VAULT_KEY_V1=${MASTER_VAULT_KEY_V1}
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6380/0
       - SKIP_MIGRATIONS=true
     depends_on:
       postgres:
@@ -148,8 +143,7 @@ services:
     volumes:
       - ./flowsint-app:/app
       - /app/node_modules
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
+    env_file: .env
     depends_on:
       api:
         condition: service_healthy
