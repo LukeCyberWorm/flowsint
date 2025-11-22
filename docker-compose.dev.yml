@@ -1,7 +1,6 @@
 name: flowsint-dev
 
 services:
-  # PostgreSQL database
   postgres:
     image: postgres:15
     container_name: flowsint-postgres-dev
@@ -22,7 +21,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis
   redis:
     image: redis:alpine
     container_name: flowsint-redis-dev
@@ -36,7 +34,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Neo4j (já corrigido para Neo4j 5)
   neo4j:
     image: neo4j:5
     container_name: flowsint-neo4j-dev
@@ -58,12 +55,12 @@ services:
     networks:
       - flowsint_network
     healthcheck:
-      test: test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD-SHELL", "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/7687' || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 10
+      timeout: 10s
+      retries: 15
+      start_period: 40s   # ← tempo extra pro Neo4j ligar
 
-  # FastAPI Backend – PORTA CORRIGIDA (5001 no host → 8000 no container)
   api:
     build:
       context: .
@@ -72,7 +69,7 @@ services:
     container_name: flowsint-api-dev
     restart: unless-stopped
     ports:
-      - "5001:8000"   # ← MUDANÇA PRINCIPAL
+      - "5001:8000"
     volumes:
       - ./flowsint-api:/app/flowsint-api
       - ./flowsint-core:/app/flowsint-core
@@ -92,14 +89,14 @@ services:
       neo4j:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]  # ← também corrigido aqui
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
-      timeout: 5s
-      retries: 10
+      timeout: 10s
+      retries: 15
+      start_period: 40s   # ← esse era o detalhe que faltava!
     networks:
       - flowsint_network
 
-  # Celery Worker
   celery:
     build:
       context: .
@@ -121,18 +118,11 @@ services:
       - REDIS_URL=redis://redis:6380/0
       - SKIP_MIGRATIONS=true
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
       api:
         condition: service_healthy
     networks:
       - flowsint_network
 
-  # Frontend
   app:
     build:
       context: ./flowsint-app

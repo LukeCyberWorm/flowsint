@@ -34,7 +34,7 @@ RUN poetry install --no-root
 EXPOSE 5001
 
 ENTRYPOINT ["/app/flowsint-api/entrypoint.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5001", "--reload"]
+CMD ["uvicorn", "flowsint_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # Production stage
 FROM base AS prod
