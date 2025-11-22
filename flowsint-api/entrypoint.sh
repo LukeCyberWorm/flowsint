@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
 
 if [ "$SKIP_MIGRATIONS" != "true" ]; then
@@ -9,4 +9,4 @@ else
 fi
 
 echo "Starting application..."
-exec "$@"
+exec uvicorn flowsint_api.main:app --host 0.0.0.0 --port 5001 --reload
