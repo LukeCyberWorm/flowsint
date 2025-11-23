@@ -106,7 +106,7 @@ function FloatingChat() {
                     onClick={toggleChat}
                   >
                     {/* <Sparkles className='!h-5 !w-5' /> */}
-                    <img src="/icon.png" alt="Flowsint" className="h-12 w-12 object-contain" />
+                    <img src="/rsl-logo.svg" alt="Red Shadow Link" className="h-12 w-12 object-contain" />
                   </Button>
                 </div>
               </TooltipTrigger>
@@ -202,8 +202,8 @@ function FloatingChat() {
                               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full blur-xl animate-pulse"></div>
                               <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-full p-4 border border-primary/20">
                                 <img
-                                  src="/icon.png"
-                                  alt="Flowsint"
+                                  src="/rsl-logo.svg"
+                                  alt="Red Shadow Link"
                                   className="h-12 w-12 object-cover"
                                 />
                               </div>
@@ -239,11 +239,11 @@ function FloatingChat() {
                                                         </div> */}
                             <div className="space-y-2 max-w-sm">
                               <h3 className="text-lg font-semibold text-foreground">
-                                Start your conversation with{' '}
-                                <span className="text-primary">Flo</span>
+                                Comece sua conversa com o assistente do{' '}
+                                <span className="text-primary">Red Shadow Link</span>
                               </h3>
                               <p className="text-sm opacity-70">
-                                Ask me anything about your investigation. Here are some examples:
+                                Pergunte qualquer coisa sobre sua investigação. Alguns exemplos:
                               </p>
                             </div>
                             <div className="mt-6 space-y-3 max-w-md">

@@ -40,6 +40,14 @@ def login_for_access_token(
 @router.post("/register", status_code=201)
 def register(user: ProfileCreate, db: Session = Depends(get_db)):
     try:
+        # Verificar limite de 30 usuários
+        total_users = db.query(Profile).count()
+        if total_users >= 30:
+            raise HTTPException(
+                status_code=403, 
+                detail="Limite máximo de cadastros atingido (30 usuários)"
+            )
+        
         existing_user = db.query(Profile).filter(Profile.email == user.email).first()
 
         if existing_user:

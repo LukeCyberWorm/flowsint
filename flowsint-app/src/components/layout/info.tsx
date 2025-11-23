@@ -17,85 +17,84 @@ const InfoDialog = () => {
         <DialogContent className="sm:max-w-2xl">
           <div className="p-2">
             <div className="p-2 text-sm space-y-4 overflow-y-auto max-h-[80vh]">
-              <h2 className="text-base font-semibold flex items-center gap-2">About Flowsint</h2>
+              <h2 className="text-base font-semibold flex items-center gap-2">Sobre o Red Shadow Link</h2>
               <p>
-                <strong>Flowsint</strong> is an{' '}
-                <strong>investigation and intelligence platform</strong> built to support complex
-                research workflows involving{' '}
-                <strong>people, organizations, infrastructure, and online activity</strong>.
+                <strong>Red Shadow Link</strong> é uma{' '}
+                <strong>plataforma de investigação e inteligência</strong> criada para dar suporte a fluxos de trabalho complexos
+                que envolvem{' '}
+                <strong>pessoas, organizações, infraestrutura e atividade online</strong>.
               </p>
 
               <p>
-                Whether you're conducting <strong>cyber investigations</strong>, mapping out{' '}
-                <strong>fraud networks</strong>, or gathering intelligence for{' '}
-                <strong>threat assessments</strong>, Flowsint helps you collect, visualize, and
-                understand fragmented data points in a structured and interactive way.
+                Seja conduzindo <strong>investigações cibernéticas</strong>, mapeando{' '}
+                <strong>redes de fraude</strong> ou coletando inteligência para{' '}
+                <strong>avaliações de ameaça</strong>, o Red Shadow Link ajuda você a coletar, visualizar e
+                entender pontos de dados fragmentados de forma estruturada e interativa.
               </p>
 
-              <h3 className="font-semibold">What Flowsint Does</h3>
+              <h3 className="font-semibold">O que o Red Shadow Link faz</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>
-                  <strong>Connects scattered data</strong> — emails, domains, social accounts, IPs,
-                  phone numbers, addresses, and more — into a single{' '}
-                  <strong>investigative graph</strong>.
+                  <strong>Conecta dados dispersos</strong> — e-mails, domínios, contas em redes sociais, IPs,
+                  números de telefone, endereços e muito mais — em um único{' '}
+                  <strong>grafo investigativo</strong>.
                 </li>
                 <li>
-                  Offers <strong>visual transforms</strong> to pivot from one entity to related
-                  ones: find <strong>connected individuals</strong>, discover{' '}
-                  <strong>infrastructure</strong>, uncover <strong>aliases</strong>.
+                  Oferece <strong>transformações visuais</strong> para navegar de uma entidade para outras relacionadas:
+                  encontrar <strong>indivíduos conectados</strong>, descobrir{' '}
+                  <strong>infraestrutura</strong> e revelar <strong>aliasses</strong>.
                 </li>
                 <li>
-                  <strong>Tracks and saves investigation states</strong> over time, letting you
-                  explore multiple hypotheses or revisit older threads without losing context.
+                  <strong>Acompanha e salva estados da investigação</strong> ao longo do tempo, permitindo
+                  explorar múltiplas hipóteses ou revisitar linhas antigas sem perder contexto.
                 </li>
                 <li>
-                  Supports <strong>live data enrichment</strong> from custom or built-in transforms,
-                  giving you <strong>actionable insights</strong> as you explore.
+                  Suporta <strong>enriquecimento dinâmico de dados</strong> a partir de transformações nativas ou personalizadas,
+                  trazendo <strong>insights acionáveis</strong> enquanto você explora.
                 </li>
               </ul>
 
-              <h3 className="font-semibold">Why Use Flowsint?</h3>
+              <h3 className="font-semibold">Por que usar o Red Shadow Link?</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>
-                  Built for <strong>speed and clarity</strong> — fast graph rendering, clean UI,
-                  responsive transforms.
+                  Construído para <strong>velocidade e clareza</strong> — renderização rápida de grafos, interface limpa
+                  e transformações responsivas.
                 </li>
                 <li>
-                  <strong>Flexible graph model</strong> that mirrors how investigators think — not
-                  just tables and tags, but <strong>relationships</strong>.
+                  <strong>Modelo de grafo flexível</strong> que reflete como investigadores pensam — não apenas
+                  tabelas e marcadores, mas <strong>relacionamentos</strong>.
                 </li>
                 <li>
-                  Ideal for <strong>solo analysts and teams</strong> that need to move fast, explore
-                  freely, and make sense of <strong>partial or messy data</strong>.
+                  Ideal para <strong>analistas individuais e equipes</strong> que precisam se mover rápido, explorar
+                  com liberdade e dar sentido a <strong>dados parciais ou desorganizados</strong>.
                 </li>
               </ul>
 
-              <h3 className="font-semibold">Use Cases</h3>
+              <h3 className="font-semibold">Casos de uso</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>
-                  Mapping <strong>digital infrastructure</strong> of individuals or organizations
+                  Mapear a <strong>infraestrutura digital</strong> de indivíduos ou organizações
                 </li>
                 <li>
-                  Investigating <strong>online fraud schemes</strong> or{' '}
-                  <strong>fake identities</strong>
+                  Investigar <strong>esquemas de fraude online</strong> ou{' '}
+                  <strong>identidades falsas</strong>
                 </li>
                 <li>
-                  Uncovering <strong>links between actors</strong> across platforms
+                  Revelar <strong>ligações entre atores</strong> em múltiplas plataformas
                 </li>
                 <li>
-                  Visualizing the reach of <strong>leaked or exposed data</strong>
+                  Visualizar o alcance de <strong>dados vazados ou expostos</strong>
                 </li>
                 <li>
-                  Tracking <strong>threat actor behavior</strong> across social and technical
-                  surfaces
+                  Acompanhar o <strong>comportamento de atores de ameaça</strong> em superfícies sociais e técnicas
                 </li>
               </ul>
 
               <p>
-                Flowsint is designed for <strong>professionals</strong> who need{' '}
-                <strong>full control</strong> over their investigation logic, from how data is
-                structured to how relationships are interpreted. It's not just a tool — it's a{' '}
-                <strong>flexible workspace</strong> for building intelligence.
+                O Red Shadow Link foi projetado para <strong>profissionais</strong> que precisam de{' '}
+                <strong>controle total</strong> sobre a lógica de investigação, desde como os dados são
+                estruturados até como os relacionamentos são interpretados. Não é apenas uma ferramenta — é um{' '}
+                <strong>ambiente flexível</strong> para construir inteligência.
               </p>
             </div>
           </div>

@@ -11,8 +11,8 @@ export const Route = createFileRoute('/login')({
 })
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
+  username: z.string().min(1, 'Informe seu e-mail'),
+  password: z.string().min(1, 'Informe sua senha'),
   rememberMe: z.boolean().optional()
 })
 
@@ -43,18 +43,29 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold">Sign in to your account</h2>
+        <div className="text-center space-y-4">
+          <img
+            src="/rsl-logo.svg"
+            alt="RSL - Scarlet"
+            className="mx-auto h-24 w-auto"
+          />
+          <h1 className="text-3xl font-extrabold tracking-wide">RSL - Scarlet</h1>
+          <p className="text-sm text-gray-300">
+            Seja bem-vindo ao sistema OSINT Red Shadow Link
+          </p>
+          <p className="text-xs text-gray-400 uppercase tracking-[0.3em]">
+            By Scarlet Red Solutions
+          </p>
         </div>
 
         <FormProvider {...methods}>
           <form className="mt-8 space-y-6" onSubmit={methods.handleSubmit(onSubmit)}>
             {/* Display login error */}
             {login.error && (
-              <div className="p-3 mb-4 text-sm bg-red-500/10 border border-red-400 text-red-700 rounded">
-                {login.error instanceof Error ? login.error.message : 'Login error'}
+              <div className="p-3 mb-4 text-sm bg-red-500/10 border border-red-400 text-red-300 rounded">
+                {login.error instanceof Error ? login.error.message : 'Não foi possível entrar. Tente novamente.'}
               </div>
             )}
 
@@ -62,17 +73,17 @@ function Login() {
               {/* Username field */}
               <FormField
                 name="username"
-                label="Email"
-                placeholder="Your email"
+                label="E-mail"
+                placeholder="Seu e-mail"
                 disabled={login.isPending}
               />
 
               {/* Password field */}
               <FormField
                 name="password"
-                label="Password"
+                label="Senha"
                 type="password"
-                placeholder="Your password"
+                placeholder="Sua senha"
                 disabled={login.isPending}
               />
             </div>
@@ -127,10 +138,10 @@ function Login() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Signing in...
+                    Entrando...
                   </span>
                 ) : (
-                  'Sign In'
+                  'Entrar'
                 )}
               </button>
             </div>
@@ -139,14 +150,18 @@ function Login() {
 
         {/* Link to registration */}
         <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+          <p className="text-sm text-gray-300">
+            Ainda não tem uma conta?{' '}
             <Link to="/register" className="font-medium text-primary">
-              Create an account
+              Cadastre-se
             </Link>
           </p>
         </div>
       </div>
+
+      <p className="mt-12 text-center text-xs text-gray-500">
+        CNPJ: 57.238.225/0001-06 — Scarlet Red Solutions LTDA
+      </p>
     </div>
   )
 }

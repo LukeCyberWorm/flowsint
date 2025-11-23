@@ -41,8 +41,8 @@ export const TopNavbar = memo(() => {
     >
       <div className="flex items-center gap-4">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <img src="/icon.png" alt="Flowsint" className="h-8 w-8" />
-          <span className="text-lg font-semibold">Flowsint</span>
+          <img src="/rsl-logo.svg" alt="Red Shadow Link" className="h-8 w-8" />
+          <span className="text-lg font-semibold">Red Shadow Link</span>
         </Link>
         <div className="hidden lg:flex items-center gap-2">
           {investigationId && <InvestigationSelector />}
@@ -142,14 +142,14 @@ export function InvestigationMenu({ investigationId, sketchId }: { investigation
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
-        <DropdownMenuLabel>Settings</DropdownMenuLabel>
+        <DropdownMenuLabel>Configurações</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={toggleSettingsModal}>
-            General
+            Geral
             <DropdownMenuShortcut>⌘G</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={toggleKeyboardShortcutsModal}>
-            Keyboard shortcuts
+            Atalhos de teclado
             <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -158,16 +158,16 @@ export function InvestigationMenu({ investigationId, sketchId }: { investigation
           <a className='h-full w-full' target='_blank' href="https://github.com/reconurge/flowsint">GitHub</a>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <a className='h-full w-full' target='_blank' href="https://github.com/reconurge/flowsint/issues">Support</a>
+          <a className='h-full w-full' target='_blank' href="https://github.com/reconurge/flowsint/issues">Suporte</a>
         </DropdownMenuItem>
         <DropdownMenuItem disabled>API</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setImportModalOpen(true)}>
-          <Upload />  Import entities
+          <Upload />  Importar entidades
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDelete} variant="destructive">
-          Delete sketch
+          Excluir sketch
           {/* <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
