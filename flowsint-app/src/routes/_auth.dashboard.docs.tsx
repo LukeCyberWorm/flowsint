@@ -344,6 +344,281 @@ function DocsPage() {
         </div>
       </section>
 
+      {/* Ética e Legalidade */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <Shield className="h-6 w-6 text-[#dc2638]" />
+          ⚖️ Ética, Legalidade e Uso Responsável
+        </h2>
+        
+        <div className="bg-[#dc2638]/10 border-2 border-[#dc2638] rounded-lg p-6 mb-6">
+          <h3 className="text-xl font-bold mb-3 text-[#dc2638]">⚠️ AVISO LEGAL IMPORTANTE</h3>
+          <p className="text-muted-foreground mb-3 leading-relaxed">
+            O RSL-Scarlet é uma ferramenta profissional de OSINT (Open Source Intelligence) destinada 
+            exclusivamente para uso ético e legal. Toda coleta e processamento de dados deve estar em 
+            conformidade com as legislações aplicáveis em sua jurisdição.
+          </p>
+          <p className="text-white font-semibold">
+            É de inteira responsabilidade do usuário garantir que suas atividades estejam em conformidade 
+            com as leis locais, nacionais e internacionais. A Scarlet Red Solutions não se responsabiliza 
+            por uso indevido, ilegal ou antiético da plataforma.
+          </p>
+        </div>
+
+        <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">📜 Legislação Brasileira Aplicável</h3>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <div>
+                <strong className="text-white">Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018):</strong>
+                <p className="mt-1">O tratamento de dados pessoais deve respeitar os princípios da finalidade, adequação, necessidade, transparência e segurança. Utilize o RSL-Scarlet apenas com dados públicos ou mediante consentimento legal. Atenção especial aos dados sensíveis (origem racial, convicções religiosas, dados de saúde, etc.) que possuem proteção reforçada.</p>
+              </div>
+              <div>
+                <strong className="text-white">Marco Civil da Internet (Lei 12.965/2014):</strong>
+                <p className="mt-1">Estabelece princípios, garantias, direitos e deveres para o uso da Internet no Brasil. Respeite a privacidade, a proteção dos dados pessoais e o direito de acesso à informação. Não utilize a plataforma para invasão de dispositivos ou interceptação de comunicações privadas.</p>
+              </div>
+              <div>
+                <strong className="text-white">Código Penal Brasileiro (Decreto-Lei 2.848/1940):</strong>
+                <p className="mt-1">Art. 154-A (Invasão de dispositivo informático), Art. 154-B (Interrupção de serviço), Art. 313-A (Inserção de dados falsos em sistema), Art. 313-B (Modificação de dados). Todas essas práticas são crimes e NÃO devem ser realizadas com esta ferramenta.</p>
+              </div>
+              <div>
+                <strong className="text-white">Lei Carolina Dieckmann (Lei 12.737/2012):</strong>
+                <p className="mt-1">Tipifica crimes informáticos. Proíbe invasão de dispositivos, interceptação de comunicações e falsificação de documentos eletrônicos. O RSL-Scarlet deve ser usado apenas para análise de informações públicas e legalmente obtidas.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">🌍 Legislação Internacional Relevante</h3>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <div>
+                <strong className="text-white">GDPR - General Data Protection Regulation (UE):</strong>
+                <p className="mt-1">Regulamento europeu que estabelece regras sobre proteção de dados pessoais. Se você processar dados de cidadãos da União Europeia, deve garantir conformidade com princípios de minimização de dados, propósito limitado, e direitos dos titulares (acesso, retificação, exclusão).</p>
+              </div>
+              <div>
+                <strong className="text-white">CFAA - Computer Fraud and Abuse Act (EUA):</strong>
+                <p className="mt-1">Lei federal dos EUA que criminaliza acesso não autorizado a sistemas computacionais. Aplica-se a servidores e serviços hospedados nos Estados Unidos. Respeite os termos de serviço de APIs e plataformas consultadas.</p>
+              </div>
+              <div>
+                <strong className="text-white">Convention on Cybercrime (Convenção de Budapeste):</strong>
+                <p className="mt-1">Tratado internacional sobre crimes cibernéticos ratificado por diversos países. Estabelece padrões para investigação e cooperação internacional em crimes digitais.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">✅ Casos de Uso LEGAIS e ÉTICOS</h3>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• <strong className="text-white">Due Diligence Corporativa:</strong> Verificação de fornecedores, parceiros comerciais e candidatos a emprego usando informações públicas</li>
+              <li>• <strong className="text-white">Investigações Forenses Autorizadas:</strong> Análise de evidências digitais em processos legais com ordem judicial</li>
+              <li>• <strong className="text-white">Segurança da Informação:</strong> Mapeamento da superfície de ataque da própria organização (reconhecimento autorizado)</li>
+              <li>• <strong className="text-white">Jornalismo Investigativo:</strong> Pesquisa de informações públicas para matérias jornalísticas de interesse público</li>
+              <li>• <strong className="text-white">Pesquisa Acadêmica:</strong> Coleta e análise de dados públicos para estudos científicos com aprovação de comitês de ética</li>
+              <li>• <strong className="text-white">Threat Intelligence:</strong> Monitoramento de ameaças cibernéticas e indicadores de comprometimento (IoCs)</li>
+              <li>• <strong className="text-white">Compliance e Auditoria:</strong> Verificação de conformidade regulatória e exposição de dados corporativos</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">❌ Usos PROIBIDOS e ANTIÉTICOS</h3>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• <strong className="text-red-500">Invasão de Privacidade:</strong> Coleta de dados pessoais sem base legal ou consentimento</li>
+              <li>• <strong className="text-red-500">Stalking e Perseguição:</strong> Monitoramento não autorizado de indivíduos para fins de assédio</li>
+              <li>• <strong className="text-red-500">Fraude e Engenharia Social:</strong> Obtenção de informações mediante engano ou falsidade ideológica</li>
+              <li>• <strong className="text-red-500">Acesso Não Autorizado:</strong> Tentativas de invasão de sistemas, redes ou contas de terceiros</li>
+              <li>• <strong className="text-red-500">Violação de Termos de Serviço:</strong> Scraping agressivo ou uso de APIs sem autorização</li>
+              <li>• <strong className="text-red-500">Discriminação:</strong> Uso de dados para discriminar com base em raça, religião, orientação sexual, etc.</li>
+              <li>• <strong className="text-red-500">Doxing:</strong> Exposição maliciosa de informações pessoais com intenção de causar dano</li>
+              <li>• <strong className="text-red-500">Espionagem Industrial Ilegal:</strong> Coleta de segredos comerciais sem autorização legal</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">📋 Código de Conduta Profissional</h3>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p><strong className="text-white">1. Princípio da Legalidade:</strong> Cumpra todas as leis aplicáveis em sua jurisdição. Em caso de dúvida, consulte assessoria jurídica.</p>
+              <p><strong className="text-white">2. Princípio da Necessidade:</strong> Colete apenas os dados estritamente necessários para o objetivo legítimo declarado.</p>
+              <p><strong className="text-white">3. Princípio da Proporcionalidade:</strong> O método de coleta deve ser proporcional ao objetivo e não excessivamente invasivo.</p>
+              <p><strong className="text-white">4. Princípio da Transparência:</strong> Seja transparente sobre seus propósitos quando legalmente permitido. Documente suas investigações.</p>
+              <p><strong className="text-white">5. Princípio da Segurança:</strong> Proteja os dados coletados com medidas adequadas de segurança. Use criptografia e controle de acesso.</p>
+              <p><strong className="text-white">6. Princípio da Responsabilidade:</strong> Assuma responsabilidade pelas consequências de suas ações e pelos dados processados.</p>
+              <p><strong className="text-white">7. Princípio da Boa-Fé:</strong> Atue sempre com honestidade, integridade e respeito aos direitos fundamentais das pessoas.</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-[#dc2638]">🛡️ Responsabilidade e Isenção</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              A Scarlet Red Solutions fornece o RSL-Scarlet "como está" (as-is) para fins legítimos de OSINT. 
+              Não nos responsabilizamos por: (1) uso ilegal ou antiético da ferramenta; (2) violação de leis 
+              de proteção de dados ou privacidade; (3) danos causados a terceiros; (4) violação de termos de 
+              serviço de plataformas de terceiros; (5) interpretação incorreta de dados coletados.
+            </p>
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+              Ao utilizar esta plataforma, você concorda em: (1) usar apenas para fins legais; (2) cumprir 
+              todas as leis aplicáveis; (3) respeitar os direitos de privacidade; (4) não realizar atividades 
+              maliciosas; (5) assumir total responsabilidade por suas ações.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">
+            <strong className="text-yellow-500">📖 Leitura Obrigatória:</strong> Consulte o arquivo <code className="bg-muted px-2 py-1 rounded text-xs">ETHICS.md</code> no repositório para diretrizes completas de uso ético. Para disclaimers legais, veja <code className="bg-muted px-2 py-1 rounded text-xs">DISCLAIMER.md</code>.
+          </p>
+        </div>
+      </section>
+
+      {/* Funções dos Módulos do Sistema */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-6">🧩 Funções Detalhadas dos Módulos</h2>
+        <p className="text-muted-foreground mb-6">
+          O RSL-Scarlet é composto por 5 módulos principais que trabalham em conjunto para fornecer uma 
+          plataforma OSINT completa e escalável. Cada módulo possui responsabilidades bem definidas.
+        </p>
+
+        <div className="space-y-6">
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#dc2638] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                🖥️
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-app (Frontend)</h3>
+                <p className="text-sm text-muted-foreground">Interface do usuário e visualização de dados</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p><strong className="text-white">Responsabilidades:</strong></p>
+              <ul className="space-y-1 ml-4">
+                <li>• <strong>Visualização de Grafos:</strong> Renderiza grafos interativos usando React Flow. Permite zoom, pan, seleção múltipla e layout automático</li>
+                <li>• <strong>Editor de Flows:</strong> Interface drag-and-drop para criar pipelines de transforms. Validação visual de conexões e tipos</li>
+                <li>• <strong>Gerenciamento de Investigações:</strong> CRUD completo de investigações, compartilhamento, controle de permissões e exportação</li>
+                <li>• <strong>Sistema de Busca (Ctrl+K):</strong> Command palette com busca fuzzy em investigações, flows, transforms e documentação</li>
+                <li>• <strong>Interface do Vault:</strong> Gerenciamento de credenciais e secrets com mascaramento de valores sensíveis</li>
+                <li>• <strong>Autenticação JWT:</strong> Fluxo de login/registro, armazenamento seguro de tokens, refresh automático</li>
+                <li>• <strong>Notificações em Tempo Real:</strong> WebSocket para updates de transforms executando, novos resultados e alertas</li>
+                <li>• <strong>Temas e Customização:</strong> Sistema de temas (dark/light), preferências do usuário, layouts salvos</li>
+              </ul>
+              <p className="mt-3"><strong className="text-white">Tecnologias:</strong> React 18, TypeScript, Vite, TanStack Router, TanStack Query, Zustand, Tailwind CSS, React Flow, Lucide Icons</p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#dc2638] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                ⚙️
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-api (Backend API)</h3>
+                <p className="text-sm text-muted-foreground">Servidor de aplicação e lógica de negócio</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p><strong className="text-white">Responsabilidades:</strong></p>
+              <ul className="space-y-1 ml-4">
+                <li>• <strong>API RESTful:</strong> Endpoints para todas as operações (investigações, transforms, vault, usuários)</li>
+                <li>• <strong>Autenticação e Autorização:</strong> Sistema JWT com roles (admin, user), verificação de permissões por recurso</li>
+                <li>• <strong>Gestão de Filas:</strong> Celery workers para execução assíncrona de transforms. Retry automático em falhas</li>
+                <li>• <strong>Orquestração de Transforms:</strong> Submissão de tarefas, monitoramento de progresso, coleta de resultados</li>
+                <li>• <strong>Persistência de Dados:</strong> Integração com PostgreSQL (dados relacionais) e Neo4j (grafos de entidades)</li>
+                <li>• <strong>Sistema de Cofre:</strong> Criptografia AES-256 de secrets, derivação de chaves com PBKDF2, versionamento</li>
+                <li>• <strong>Logs e Auditoria:</strong> Registro de todas as ações com timestamp, usuário, tipo de operação e metadados</li>
+                <li>• <strong>Validação de Dados:</strong> Pydantic schemas para validação rigorosa de inputs e outputs</li>
+                <li>• <strong>Rate Limiting:</strong> Proteção contra abuso com limites por endpoint e por usuário</li>
+                <li>• <strong>WebSocket Server:</strong> Comunicação bidirecional para notificações em tempo real</li>
+              </ul>
+              <p className="mt-3"><strong className="text-white">Tecnologias:</strong> FastAPI, Python 3.11+, SQLAlchemy, Alembic, Celery, Redis, PostgreSQL, Neo4j, Pydantic, cryptography</p>
+              <p className="mt-2"><strong className="text-white">Nota de Segurança:</strong> Detalhes de implementação de criptografia, hashing de senhas e validação de tokens são mantidos privados por razões de segurança.</p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#dc2638] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                🔧
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-core (Biblioteca Principal)</h3>
+                <p className="text-sm text-muted-foreground">Classes base e funcionalidades compartilhadas</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p><strong className="text-white">Responsabilidades:</strong></p>
+              <ul className="space-y-1 ml-4">
+                <li>• <strong>Classe Transform Base:</strong> Interface abstrata que todos os transforms devem implementar (execute, validate, required_keys)</li>
+                <li>• <strong>Registro de Transforms:</strong> Sistema de descoberta automática de transforms instalados via entry points</li>
+                <li>• <strong>Pipeline Executor:</strong> Motor de execução sequencial de transforms com tratamento de erros e propagação de dados</li>
+                <li>• <strong>Conectores de Banco:</strong> Wrappers para PostgreSQL e Neo4j com connection pooling e retry logic</li>
+                <li>• <strong>Logger Singleton:</strong> Sistema de logging centralizado com níveis configuráveis e rotação de arquivos</li>
+                <li>• <strong>Vault Manager:</strong> Interface de alto nível para operações de cofre (get_secret, set_secret, list_secrets)</li>
+                <li>• <strong>Exception Handling:</strong> Hierarquia de exceções customizadas para tratamento granular de erros</li>
+                <li>• <strong>Data Validators:</strong> Validadores para tipos de entidades (Domain, IP, Email, etc.) com regex e verificações</li>
+              </ul>
+              <p className="mt-3"><strong className="text-white">Tecnologias:</strong> Python 3.11+, Pydantic, psycopg2, neo4j-driver, structlog</p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#dc2638] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                🔄
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-transforms (Transforms OSINT)</h3>
+                <p className="text-sm text-muted-foreground">Coleção de transforms para coleta e enriquecimento</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p><strong className="text-white">Responsabilidades:</strong></p>
+              <ul className="space-y-1 ml-4">
+                <li>• <strong>Transforms de Domain:</strong> DNS resolution, WHOIS, subdomain discovery, certificate transparency</li>
+                <li>• <strong>Transforms de IP:</strong> Geolocalização, ASN lookup, reputation check, reverse DNS</li>
+                <li>• <strong>Transforms de Email:</strong> Breach detection (HaveIBeenPwned), Gravatar, email validation (sintaxe e MX)</li>
+                <li>• <strong>Transforms de Phone:</strong> Carrier lookup, número validation, location by area code</li>
+                <li>• <strong>Transforms de Crypto:</strong> Blockchain queries (Bitcoin, Ethereum), wallet transactions, NFT lookup</li>
+                <li>• <strong>Transforms de Social:</strong> Username search (Maigret), profile enrichment, cross-platform correlation</li>
+                <li>• <strong>Transforms de Organization:</strong> ASN discovery, domain ownership, public company info</li>
+                <li>• <strong>Transforms de Website:</strong> Crawler, link extractor, screenshot, web tracker detection</li>
+                <li>• <strong>Integração com APIs:</strong> Wrappers para Shodan, VirusTotal, Censys, SecurityTrails (requer API keys)</li>
+              </ul>
+              <p className="mt-3"><strong className="text-white">Tecnologias:</strong> Python 3.11+, aiohttp, dnspython, whois, beautifulsoup4, Pillow, selenium (para screenshots)</p>
+              <p className="mt-2"><strong className="text-white">Extensibilidade:</strong> Desenvolvedores podem criar transforms customizados seguindo a interface base. Veja exemplos em <code className="bg-muted px-2 py-1 rounded text-xs">domain/to_ip.py</code></p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#dc2638] rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                📦
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-types (Definições de Tipos)</h3>
+                <p className="text-sm text-muted-foreground">Schemas e tipos compartilhados</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p><strong className="text-white">Responsabilidades:</strong></p>
+              <ul className="space-y-1 ml-4">
+                <li>• <strong>Modelos Pydantic:</strong> Schemas de validação para todas as entidades (Domain, IP, Email, Phone, etc.)</li>
+                <li>• <strong>Enums e Constantes:</strong> Definições de tipos de entidades, status de transforms, níveis de permissão</li>
+                <li>• <strong>DTOs (Data Transfer Objects):</strong> Objetos para comunicação entre frontend e backend (CreateInvestigation, RunTransform)</li>
+                <li>• <strong>Validadores de Campo:</strong> Regex patterns para validação de domains, IPs, emails, hashes, wallets</li>
+                <li>• <strong>Parsers:</strong> Funções para normalização e extração de dados (parse_domain, parse_ip_address)</li>
+                <li>• <strong>Type Hints:</strong> Anotações de tipo para melhor IDE support e type checking com mypy</li>
+              </ul>
+              <p className="mt-3"><strong className="text-white">Tecnologias:</strong> Python 3.11+, Pydantic, typing-extensions</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">
+            <strong className="text-blue-400">🏗️ Arquitetura Modular:</strong> A separação em módulos permite escalabilidade, manutenibilidade e reutilização de código. Cada módulo pode ser atualizado independentemente, facilitando CI/CD e reduzindo riscos de regressão.
+          </p>
+        </div>
+      </section>
+
       {/* Segurança e Privacidade */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -387,13 +662,12 @@ function DocsPage() {
             description="API keys e credenciais armazenadas no Vault nunca aparecem em logs. Mascaramento automático em interfaces. Suporte a rotação de credenciais com versionamento. Permissões específicas para leitura/escrita de secrets. Exclusão segura com sobrescrição de dados."
           />
 
+          
           <SecurityItem
-            title="Conformidade e Ética"
-            description="O RSL-Scarlet é uma ferramenta de uso ético. Consulte o arquivo ETHICS.md no repositório para diretrizes de uso responsável. Não utilize para atividades ilegais, invasão de privacidade ou violação de termos de serviço. Sempre obtenha autorização legal antes de investigações."
+            title="Conformidade Legal e Regulatória"
+            description="O sistema foi projetado com privacy-by-design e security-by-default. Conformidade com LGPD (Brasil), GDPR (UE) e melhores práticas de segurança da informação. Logs de auditoria permitem demonstrar conformidade em auditorias e processos legais. Todos os dados são armazenados localmente, cumprindo requisitos de data residency e soberania de dados."
           />
-        </div>
-
-        <div className="mt-6 bg-[#dc2638]/10 border border-[#dc2638]/30 rounded-lg p-4">
+        </div>        <div className="mt-6 bg-[#dc2638]/10 border border-[#dc2638]/30 rounded-lg p-4">
           <p className="text-sm text-muted-foreground">
             <strong className="text-[#dc2638]">⚠️ Recomendações de Segurança:</strong>
           </p>
