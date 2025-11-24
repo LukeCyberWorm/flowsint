@@ -7,15 +7,16 @@ export const Route = createFileRoute('/_auth/dashboard/docs')({
 
 function DocsPage() {
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#ff4b5c] to-[#d72638] bg-clip-text text-transparent">
-          Red Shadow Link (RSL-Scarlet)
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Plataforma OSINT completa da Scarlet Red Solutions
-        </p>
-      </div>
+    <div className="h-full w-full bg-background overflow-y-auto">
+      <div className="container mx-auto py-8 px-4 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#ff4b5c] to-[#d72638] bg-clip-text text-transparent">
+            Red Shadow Link (RSL-Scarlet)
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Plataforma OSINT completa da Scarlet Red Solutions
+          </p>
+        </div>
 
       {/* Introdução */}
       <section className="mb-12">
@@ -835,6 +836,7 @@ function DocsPage() {
           Open Source (AGPL-3.0) | <a href="https://github.com/LukeCyberWorm/flowsint" className="text-[#dc2638] hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </footer>
+      </div>
     </div>
   )
 }
