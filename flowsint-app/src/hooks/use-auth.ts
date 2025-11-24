@@ -29,6 +29,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
+      console.log('[useLogin] Login response:', data)
+      console.log('[useLogin] User data:', data.user)
       setAuth(data.access_token, data.user)
       navigate({ to: '/' })
     }
@@ -63,7 +65,13 @@ export const useCurrentUser = () => {
     initialData: userFromStore || undefined
   })
 
+  console.log('[useCurrentUser] Token exists:', !!token)
+  console.log('[useCurrentUser] User from store:', userFromStore)
+  console.log('[useCurrentUser] Query result:', result.data)
+  console.log('[useCurrentUser] Query status:', result.status)
+
   if (result.isSuccess && result.data && token) {
+    console.log('[useCurrentUser] Setting auth with data:', result.data)
     setAuth(token, result.data)
   }
 

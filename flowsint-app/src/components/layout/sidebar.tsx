@@ -1,4 +1,4 @@
-import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes, BookOpen } from 'lucide-react'
+import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes, BookOpen, Scan } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useLayoutStore } from '@/stores/layout-store'
 import { Button } from '../ui/button'
@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { memo } from 'react'
 import { isMac } from '@/lib/utils'
 import { NavUser } from '../nav-user'
+import { useAuthStore } from '@/stores/auth-store'
 
 interface NavItem {
   icon: LucideIcon
@@ -16,14 +17,28 @@ interface NavItem {
 
 export const Sidebar = memo(() => {
   const togglePanel = useLayoutStore((s) => s.togglePanel)
+  const user = useAuthStore((s) => s.user)
+  const adminEmails = [
+    'lucas.oliveira@scarletredsolutions.com',
+    'rafaelmcpsouza@hotmail.com',
+    'lleandroaugustomiranda761@gmail.com'
+  ]
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false
+
+  console.log('[Sidebar] User email:', user?.email)
+  console.log('[Sidebar] Is admin:', isAdmin)
 
   const navItems: NavItem[] = [
     { icon: Home, label: 'Dashboard', href: '/dashboard/', tourId: 'dashboard' },
     { icon: Workflow, label: 'Flows', href: '/dashboard/flows', tourId: 'flows' },
     { icon: Shapes, label: 'Custom types', href: '/dashboard/custom-types', tourId: 'investigations' },
     { icon: Lock, label: 'Vault', href: '/dashboard/vault', tourId: 'vault' },
-    { icon: BookOpen, label: 'Documentação', href: '/dashboard/docs', tourId: 'docs' }
+    { icon: BookOpen, label: 'Documentação', href: '/dashboard/docs', tourId: 'docs' },
+    ...(isAdmin ? [{ icon: Scan, label: 'Face Recognition', href: '/dashboard/face-recognition', tourId: 'face-recognition' }] : [])
   ]
+
+  console.log('[Sidebar] Total nav items:', navItems.length)
+  console.log('[Sidebar] Nav items:', navItems.map(i => i.label))
 
   const commonClasses = 'flex items-center justify-center h-12 w-full rounded-sm hover:bg-muted'
 

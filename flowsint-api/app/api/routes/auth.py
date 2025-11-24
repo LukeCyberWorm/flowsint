@@ -25,8 +25,15 @@ def login_for_access_token(
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=400, detail="Incorrect email or password")
 
+        # Lista de admins com acesso vitalício
+        admin_emails = [
+            "lucas.oliveira@scarletredsolutions.com",
+            "rafaelmcpsouza@hotmail.com",
+            "lleandroaugustomiranda761@gmail.com"
+        ]
+        
         # Verificar se o período de trial expirou
-        if user.email != "lucas.oliveira@scarletredsolutions.com":
+        if user.email not in admin_emails:
             if not user.is_paid and user.trial_ends_at:
                 if datetime.now(timezone.utc) > user.trial_ends_at:
                     raise HTTPException(
@@ -39,6 +46,11 @@ def login_for_access_token(
             "access_token": access_token,
             "user_id": user.id,
             "token_type": "bearer",
+            "user": {
+                "id": str(user.id),
+                "username": user.name if hasattr(user, 'name') else user.email.split('@')[0],
+                "email": user.email
+            }
         }
 
     except SQLAlchemyError as e:
@@ -65,8 +77,15 @@ def register(user: ProfileCreate, db: Session = Depends(get_db)):
 
         hashed_password = get_password_hash(user.password)
         
-        # Determinar se o usuário tem acesso pago (apenas lucas.oliveira@scarletredsolutions.com)
-        is_paid = user.email == "lucas.oliveira@scarletredsolutions.com"
+        # Lista de admins com acesso vitalício
+        admin_emails = [
+            "lucas.oliveira@scarletredsolutions.com",
+            "rafaelmcpsouza@hotmail.com",
+            "lleandroaugustomiranda761@gmail.com"
+        ]
+        
+        # Determinar se o usuário tem acesso pago
+        is_paid = user.email in admin_emails
         trial_ends_at = None if is_paid else datetime.now(timezone.utc) + timedelta(days=5)
         
         new_user = Profile(
