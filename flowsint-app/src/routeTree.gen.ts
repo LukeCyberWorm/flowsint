@@ -18,6 +18,7 @@ import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth.dashboard.index'
 import { Route as AuthDashboardVaultRouteImport } from './routes/_auth.dashboard.vault'
 import { Route as AuthDashboardToolsRouteImport } from './routes/_auth.dashboard.tools'
+import { Route as AuthDashboardDocsRouteImport } from './routes/_auth.dashboard.docs'
 import { Route as AuthDashboardInvestigationsIndexRouteImport } from './routes/_auth.dashboard.investigations.index'
 import { Route as AuthDashboardFlowsIndexRouteImport } from './routes/_auth.dashboard.flows.index'
 import { Route as AuthDashboardCustomTypesIndexRouteImport } from './routes/_auth.dashboard.custom-types.index'
@@ -70,6 +71,11 @@ const AuthDashboardToolsRoute = AuthDashboardToolsRouteImport.update({
   path: '/tools',
   getParentRoute: () => AuthDashboardRoute,
 } as any)
+const AuthDashboardDocsRoute = AuthDashboardDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => AuthDashboardRoute,
+} as any)
 const AuthDashboardInvestigationsIndexRoute =
   AuthDashboardInvestigationsIndexRouteImport.update({
     id: '/investigations/',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/middleware': typeof MiddlewareRoute
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthDashboardRouteWithChildren
+  '/dashboard/docs': typeof AuthDashboardDocsRoute
   '/dashboard/tools': typeof AuthDashboardToolsRoute
   '/dashboard/vault': typeof AuthDashboardVaultRoute
   '/dashboard/': typeof AuthDashboardIndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/middleware': typeof MiddlewareRoute
   '/register': typeof RegisterRoute
+  '/dashboard/docs': typeof AuthDashboardDocsRoute
   '/dashboard/tools': typeof AuthDashboardToolsRoute
   '/dashboard/vault': typeof AuthDashboardVaultRoute
   '/dashboard': typeof AuthDashboardIndexRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/middleware': typeof MiddlewareRoute
   '/register': typeof RegisterRoute
   '/_auth/dashboard': typeof AuthDashboardRouteWithChildren
+  '/_auth/dashboard/docs': typeof AuthDashboardDocsRoute
   '/_auth/dashboard/tools': typeof AuthDashboardToolsRoute
   '/_auth/dashboard/vault': typeof AuthDashboardVaultRoute
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/middleware'
     | '/register'
     | '/dashboard'
+    | '/dashboard/docs'
     | '/dashboard/tools'
     | '/dashboard/vault'
     | '/dashboard/'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/middleware'
     | '/register'
+    | '/dashboard/docs'
     | '/dashboard/tools'
     | '/dashboard/vault'
     | '/dashboard'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/middleware'
     | '/register'
     | '/_auth/dashboard'
+    | '/_auth/dashboard/docs'
     | '/_auth/dashboard/tools'
     | '/_auth/dashboard/vault'
     | '/_auth/dashboard/'
@@ -291,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDashboardToolsRouteImport
       parentRoute: typeof AuthDashboardRoute
     }
+    '/_auth/dashboard/docs': {
+      id: '/_auth/dashboard/docs'
+      path: '/docs'
+      fullPath: '/dashboard/docs'
+      preLoaderRoute: typeof AuthDashboardDocsRouteImport
+      parentRoute: typeof AuthDashboardRoute
+    }
     '/_auth/dashboard/investigations/': {
       id: '/_auth/dashboard/investigations/'
       path: '/investigations'
@@ -344,6 +363,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthDashboardRouteChildren {
+  AuthDashboardDocsRoute: typeof AuthDashboardDocsRoute
   AuthDashboardToolsRoute: typeof AuthDashboardToolsRoute
   AuthDashboardVaultRoute: typeof AuthDashboardVaultRoute
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
@@ -357,6 +377,7 @@ interface AuthDashboardRouteChildren {
 }
 
 const AuthDashboardRouteChildren: AuthDashboardRouteChildren = {
+  AuthDashboardDocsRoute: AuthDashboardDocsRoute,
   AuthDashboardToolsRoute: AuthDashboardToolsRoute,
   AuthDashboardVaultRoute: AuthDashboardVaultRoute,
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR" theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSL Control | Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="/rsl-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="dashboard-body">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="/rsl-logo.svg" alt="RSL" class="sidebar-logo">
+      <span class="sidebar-title">RSL Control</span>
+    </div>
+    
+    <nav class="sidebar-nav" id="sidebarNav">
+      <a href="#dashboard" class="nav-item active" data-page="dashboard">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 10H9V3H3V10ZM3 17H9V12H3V17ZM11 17H17V10H11V17ZM11 3V8H17V3H11Z" fill="currentColor"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      
+      <a href="#users" class="nav-item" data-page="users">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M13 10C14.66 10 16 8.66 16 7C16 5.34 14.66 4 13 4C11.34 4 10 5.34 10 7C10 8.66 11.34 10 13 10ZM7 10C8.66 10 10 8.66 10 7C10 5.34 8.66 4 7 4C5.34 4 4 5.34 4 7C4 8.66 5.34 10 7 10ZM7 12C4.67 12 0 13.17 0 15.5V17H14V15.5C14 13.17 9.33 12 7 12ZM13 12C12.71 12 12.38 12.02 12.03 12.05C13.19 12.89 14 14.02 14 15.5V17H20V15.5C20 13.17 15.33 12 13 12Z" fill="currentColor"/>
+        </svg>
+        <span>Usuários</span>
+      </a>
+      
+      <a href="#investigations" class="nav-item" data-page="investigations">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="currentColor"/>
+        </svg>
+        <span>Investigações</span>
+      </a>
+      
+      <a href="#security" class="nav-item" data-page="security">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 1L4 3.5V8.5C4 12.88 7 16.88 10 18C13 16.88 16 12.88 16 8.5V3.5L10 1Z" fill="currentColor"/>
+        </svg>
+        <span>Segurança</span>
+      </a>
+      
+      <a href="#audit" class="nav-item" data-page="audit">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M14 2H6C4.9 2 4 2.9 4 4V16C4 17.1 4.89 18 5.99 18H14C15.1 18 16 17.1 16 16V4C16 2.9 15.1 2 14 2ZM12 16H8V14H12V16ZM12 12H8V10H12V12ZM12 8H8V6H12V8Z" fill="currentColor"/>
+        </svg>
+        <span>Auditoria</span>
+      </a>
+      
+      <a href="#analytics" class="nav-item" data-page="analytics">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M16 11V3H8V7H0V17H12V13H16V11ZM2 15V9H8V13H10V15H2ZM10 11V5H14V9H12V11H10ZM14 15H12V13H14V15Z" fill="currentColor"/>
+        </svg>
+        <span>Analytics</span>
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="user-info" id="userInfo">
+        <div class="user-avatar">A</div>
+        <div class="user-details">
+          <span class="user-name">Admin</span>
+          <span class="user-role">Administrador</span>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M6 14H3C2.73478 14 2.48043 13.8946 2.29289 13.7071C2.10536 13.5196 2 13.2652 2 13V3C2 2.73478 2.10536 2.48043 2.29289 2.29289C2.48043 2.10536 2.73478 2 3 2H6M11 11L14 8M14 8L11 5M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="content-header">
+      <div class="breadcrumb" id="breadcrumb">
+        <span>Dashboard</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="btnRefresh" title="Atualizar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M17 10C17 13.87 13.87 17 10 17C6.13 17 3 13.87 3 10C3 6.13 6.13 3 10 3C11.57 3 13.03 3.57 14.21 4.5L12 6.71V10H15.29L17.71 7.58C18.53 8.86 19 10.37 19 12C19 15.87 15.87 19 12 19C8.13 19 5 15.87 5 12C5 8.13 8.13 5 12 5V3C7.03 3 3 7.03 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12H19Z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    
+    <div class="content-body" id="contentBody">
+      <!-- KPIs -->
+      <div class="kpi-grid" id="kpiGrid"></div>
+      
+      <!-- Main Panel -->
+      <div class="panel-container" id="panelContainer"></div>
+    </div>
+  </main>
+  
+  <!-- Modal Root -->
+  <div id="modalRoot"></div>
+  
+  <script src="assets/dashboard.js"></script>
+</body>
+</html>

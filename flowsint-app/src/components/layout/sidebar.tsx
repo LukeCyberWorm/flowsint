@@ -1,4 +1,4 @@
-import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes } from 'lucide-react'
+import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes, BookOpen } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useLayoutStore } from '@/stores/layout-store'
 import { Button } from '../ui/button'
@@ -11,16 +11,18 @@ interface NavItem {
   icon: LucideIcon
   label: string
   href?: string
+  tourId?: string
 }
 
 export const Sidebar = memo(() => {
   const togglePanel = useLayoutStore((s) => s.togglePanel)
 
   const navItems: NavItem[] = [
-    { icon: Home, label: 'Dashboard', href: '/dashboard/' },
-    { icon: Workflow, label: 'Flows', href: '/dashboard/flows' },
-    { icon: Shapes, label: 'Custom types', href: '/dashboard/custom-types' },
-    { icon: Lock, label: 'Vault', href: '/dashboard/vault' }
+    { icon: Home, label: 'Dashboard', href: '/dashboard/', tourId: 'dashboard' },
+    { icon: Workflow, label: 'Flows', href: '/dashboard/flows', tourId: 'flows' },
+    { icon: Shapes, label: 'Custom types', href: '/dashboard/custom-types', tourId: 'investigations' },
+    { icon: Lock, label: 'Vault', href: '/dashboard/vault', tourId: 'vault' },
+    { icon: BookOpen, label: 'Documentação', href: '/dashboard/docs', tourId: 'docs' }
   ]
 
   const commonClasses = 'flex items-center justify-center h-12 w-full rounded-sm hover:bg-muted'
@@ -41,6 +43,7 @@ export const Sidebar = memo(() => {
                     to={item.href}
                     className={commonClasses}
                     activeProps={{ className: `${commonClasses}` }}
+                    data-tour={item.tourId}
                   >
                     {content}
                   </Link>
@@ -52,7 +55,7 @@ export const Sidebar = memo(() => {
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className={commonClasses}>{content}</button>
+                  <button className={commonClasses} data-tour={item.tourId}>{content}</button>
                 </TooltipTrigger>
                 <TooltipContent side="right">{item.label}</TooltipContent>
               </Tooltip>

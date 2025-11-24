@@ -1,5 +1,6 @@
 import FloatingChat from '@/components/chat/floating-chat'
 import RootLayout from '@/components/layout/root.layout'
+import { GuidedTour } from '@/components/onboarding/guided-tour'
 import { useGraphSettingsStore } from '@/stores/graph-settings-store'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
@@ -13,6 +14,7 @@ function DashboardPage() {
     <RootLayout>
       <Outlet />
       {Boolean(settings?.general?.showFlow?.value) && <FloatingChat />}
+      <GuidedTour />
     </RootLayout>
   )
 }

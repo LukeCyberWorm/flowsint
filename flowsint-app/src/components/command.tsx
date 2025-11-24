@@ -122,6 +122,7 @@ export function Command() {
         variant="ghost"
         onClick={() => setOpen(true)}
         className="text-xs h-8 w-full max-w-3xs border flex rounded-full items-center justify-between hover:border-muted-foreground text-muted-foreground"
+        data-tour="search"
       >
         <span className="flex items-center gap-2">
           <Search /> Buscar no Red Shadow Link{' '}
