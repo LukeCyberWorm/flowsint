@@ -47,13 +47,15 @@ const getStateColor = (state?: string) => {
 // Transform node component for transform/transform nodes only
 const TransformNode = memo(({ data, isConnectable }: TransformNodeProps) => {
   const colors = useNodesDisplaySettings((s) => s.colors)
-  const inputColor = colors[data.inputs.type.toLowerCase()]
-  const outputColor = colors[data.outputs.type.toLowerCase()]
+  const inputType = data.inputs?.type?.toLowerCase() || 'default'
+  const outputType = data.outputs?.type?.toLowerCase() || 'default'
+  const inputColor = colors[inputType]
+  const outputColor = colors[outputType]
   const opacity = data.computationState === 'pending' ? 0.5 : 1
   const setOpenFlowSheet = useFlowStore((state) => state.setOpenFlowSheet)
   const Icon =
     data.type === 'type'
-      ? useIcon(data.outputs.type.toLowerCase() as string, null)
+      ? useIcon(outputType as string, null)
       : data.icon
         ? useIcon(data.icon, null)
         : null

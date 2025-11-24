@@ -30,26 +30,32 @@ const FlowSheet = ({ onLayout }: { onLayout: () => void }) => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['raw_material', selectedNode?.data.outputs.type],
-    enabled: !!selectedNode?.data.outputs.type,
-    queryFn: () =>
-      flowService.getRawMaterialForType(selectedNode?.data.outputs.type.toLowerCase() || '')
+    queryKey: ['raw_material', selectedNode?.data.outputs?.type],
+    enabled: !!selectedNode?.data.outputs?.type,
+    queryFn: async () => {
+      const result = await flowService.getRawMaterialForType(selectedNode?.data.outputs?.type?.toLowerCase() || '')
+      console.log('[FlowSheet] Raw materials response:', result)
+      return result
+    }
   })
   const [searchTerm, setSearchTerm] = useState<string>('')
 
   const filteredTransforms = useMemo(() => {
+    console.log('[FlowSheet] Filtering transforms, materials:', materials, 'searchTerm:', searchTerm)
     if (!materials?.items || !selectedNode) return []
     if (!searchTerm.trim()) {
       return materials?.items
     }
     const term = searchTerm.toLowerCase()
     return materials?.items.filter((transform: Transform) => {
+      const inputType = transform.inputs?.type?.toLowerCase() || ''
+      const outputType = transform.outputs?.type?.toLowerCase() || ''
       return (
         transform.class_name.toLowerCase().includes(term) ||
         transform.name.toLowerCase().includes(term) ||
         transform.module.toLowerCase().includes(term) ||
-        transform.inputs.type.toLowerCase().includes(term) ||
-        transform.outputs.type.toLowerCase().includes(term) ||
+        inputType.includes(term) ||
+        outputType.includes(term) ||
         (transform.documentation && transform.documentation.toLowerCase().includes(term))
       )
     })
@@ -172,11 +178,13 @@ function areEqual(prevProps: { transform: Transform }, nextProps: { transform: T
 const TransformItem = memo(
   ({ transform, onClick }: { transform: Transform; onClick: () => void }) => {
     const colors = useNodesDisplaySettings((s) => s.colors)
-    const borderInputColor = colors[transform.inputs.type.toLowerCase()]
-    const borderOutputColor = colors[transform.outputs.type.toLowerCase()]
+    const inputType = transform.inputs?.type?.toLowerCase() || 'default'
+    const outputType = transform.outputs?.type?.toLowerCase() || 'default'
+    const borderInputColor = colors[inputType]
+    const borderOutputColor = colors[outputType]
     const Icon =
       transform.type === 'type'
-        ? useIcon(transform.outputs.type.toLowerCase() as string, null)
+        ? useIcon(outputType as string, null)
         : transform.icon
           ? useIcon(transform.icon, null)
           : null

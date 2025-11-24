@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bootstrap Admin</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    body{background:#0f1418;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+    .setup-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:2rem 2.2rem;max-width:480px;width:100%;box-shadow:0 6px 18px -8px rgba(0,0,0,.6);position:relative}
+    .setup-card h1{margin:0 0 1.1rem;font-size:1.2rem;color:#fff}
+    .note{font-size:.7rem;color:#98a6b1;margin-bottom:1rem;line-height:1.35}
+    .field small{font-size:.6rem;color:#798892}
+    .danger-box{background:#381f23;border:1px solid #7b2b33;color:#ffb7bd;padding:.6rem .75rem;font-size:.63rem;border-radius:6px;margin:0 0 1rem}
+    .success{color:#8fe6ac}
+    .warn{color:#f5a623}
+    .sep{height:1px;background:var(--border);margin:1.2rem 0}
+    .secret-info{font-size:.58rem;color:#b1bcc4;margin-top:.6rem}
+  </style>
+</head>
+<body>
+  <div class="setup-card">
+    <h1>Cadastro Inicial Admin</h1>
+    <div class="danger-box">
+      Tela TEMPORÁRIA. Use para criar o(s) primeiro(s) usuário(s) admin e APAGUE este arquivo depois.
+    </div>
+    <div class="note">
+      Regras: pode criar até <strong>2 admins</strong> sem token. A partir do 3º exige definir variável de ambiente <code>ADMIN_SETUP_SECRET</code> e informar o token.
+      Após criar os dois, REMOVA este arquivo (setup_admin.html), <code>assets/setup_admin.js</code> e <code>api/adm_setup_create.php</code>.
+    </div>
+    <form id="setupForm">
+      <div class="field"><label>Nome</label><input type="text" id="name" required minlength="2"></div>
+      <div class="field"><label>Email</label><input type="email" id="email" required autocomplete="off"></div>
+      <div class="field"><label>Senha</label><input type="password" id="password" required minlength="10"><small>Mínimo 10 caracteres com pelo menos 1 número e 1 símbolo.</small></div>
+      <div class="field"><label>Confirmar Senha</label><input type="password" id="password2" required></div>
+      <div class="field"><label>Token Secreto (se já houver admin)</label><input type="text" id="secret" autocomplete="off" placeholder="Opcional"></div>
+      <div id="msg" class="msg"></div>
+      <button type="submit" class="btn primary">Criar Admin</button>
+      <button type="button" id="testLoginBtn" class="btn outline" style="display:none" onclick="window.location.href='index.html'">Ir para Login</button>
+      <div class="secret-info">Após sucesso: remova estes arquivos para fechar a superfície de ataque.</div>
+    </form>
+  </div>
+  <script src="assets/setup_admin.js"></script>
+</body>
+</html>

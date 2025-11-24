@@ -28,8 +28,9 @@ function areEqual(prevProps: TransformNodeProps, nextProps: TransformNodeProps) 
 // Type node component for data types (domains, websites, IPs, etc.)
 const TypeNode = memo(({ data }: TransformNodeProps) => {
   const colors = useNodesDisplaySettings((s) => s.colors)
-  const outputColor = colors[data.outputs.type.toLowerCase()]
-  const Icon = useIcon(data.outputs.type.toLowerCase() as string, null)
+  const outputType = data.outputs?.type?.toLowerCase() || 'default'
+  const outputColor = colors[outputType]
+  const Icon = useIcon(outputType as string, null)
   const setOpenFlowSheet = useFlowStore((state) => state.setOpenFlowSheet)
   const key = data.outputs.properties[0].name
 

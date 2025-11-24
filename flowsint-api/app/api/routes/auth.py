@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from datetime import datetime, timezone, timedelta
 from flowsint_core.core.auth import (
     verify_password,
     create_access_token,
@@ -23,6 +24,15 @@ def login_for_access_token(
 
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+        # Verificar se o período de trial expirou
+        if user.email != "lucas.oliveira@scarletredsolutions.com":
+            if not user.is_paid and user.trial_ends_at:
+                if datetime.now(timezone.utc) > user.trial_ends_at:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Seu período de avaliação expirou. Para continuar utilizando o RSL-Scarlet, entre em contato conosco para contratar uma licença ou consultoria de implantação. Email: contato@scarletredsolutions.com"
+                    )
 
         access_token = create_access_token(data={"sub": user.email})
         return {
@@ -54,7 +64,17 @@ def register(user: ProfileCreate, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Email already registered")
 
         hashed_password = get_password_hash(user.password)
-        new_user = Profile(email=user.email, hashed_password=hashed_password)
+        
+        # Determinar se o usuário tem acesso pago (apenas lucas.oliveira@scarletredsolutions.com)
+        is_paid = user.email == "lucas.oliveira@scarletredsolutions.com"
+        trial_ends_at = None if is_paid else datetime.now(timezone.utc) + timedelta(days=5)
+        
+        new_user = Profile(
+            email=user.email, 
+            hashed_password=hashed_password,
+            is_paid=is_paid,
+            trial_ends_at=trial_ends_at
+        )
 
         db.add(new_user)
         db.commit()
@@ -63,6 +83,8 @@ def register(user: ProfileCreate, db: Session = Depends(get_db)):
         return {
             "message": "User registered successfully",
             "email": new_user.email,
+            "trial_ends_at": new_user.trial_ends_at.isoformat() if new_user.trial_ends_at else None,
+            "is_paid": new_user.is_paid
         }
 
     except IntegrityError:

@@ -44,35 +44,35 @@ function DocsPage() {
         <h2 className="text-2xl font-bold mb-6">🏗️ Arquitetura do Sistema</h2>
         <div className="bg-card border border-border rounded-lg p-6 space-y-4">
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Frontend (flowsint-app)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Interface Web</h3>
             <p className="text-sm text-muted-foreground">
               Interface React + Vite + TypeScript com TanStack Router. Visualização de grafos interativa, 
               editor de flows drag-and-drop, e sistema de busca rápida (Ctrl+K).
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Backend (flowsint-api)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">API Backend</h3>
             <p className="text-sm text-muted-foreground">
               API FastAPI (Python) com autenticação JWT, sistema de filas Celery para processamento 
               assíncrono, e integração com Neo4j (grafos) e PostgreSQL (dados relacionais).
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Core (flowsint-core)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Biblioteca Core</h3>
             <p className="text-sm text-muted-foreground">
               Biblioteca principal contendo classes base de transforms, orquestrador de pipelines, 
               registro de transforms, conectores de banco de dados e sistema de cofre criptografado.
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Transforms (flowsint-transforms)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Módulo de Transforms</h3>
             <p className="text-sm text-muted-foreground">
               Coleção de mais de 30 transforms OSINT organizados por categoria: Domain, IP, Email, 
               Phone, Crypto, Social Media, Organization e muito mais.
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Types (flowsint-types)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-[#dc2638]">Sistema de Tipos</h3>
             <p className="text-sm text-muted-foreground">
               Definições de tipos e esquemas de dados compartilhados entre todos os módulos do sistema.
             </p>
@@ -465,7 +465,7 @@ function DocsPage() {
 
         <div className="mt-6 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-4">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-yellow-500">📖 Leitura Obrigatória:</strong> Consulte o arquivo <code className="bg-muted px-2 py-1 rounded text-xs">ETHICS.md</code> no repositório para diretrizes completas de uso ético. Para disclaimers legais, veja <code className="bg-muted px-2 py-1 rounded text-xs">DISCLAIMER.md</code>.
+            <strong className="text-yellow-500">📖 Leitura Obrigatória:</strong> Consulte os termos de uso e política de privacidade disponíveis no portal da Scarlet Red Solutions. O uso desta plataforma implica na aceitação de todos os termos e condições estabelecidos.
           </p>
         </div>
       </section>
@@ -485,7 +485,7 @@ function DocsPage() {
                 🖥️
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-app (Frontend)</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">Interface Web (Frontend)</h3>
                 <p className="text-sm text-muted-foreground">Interface do usuário e visualização de dados</p>
               </div>
             </div>
@@ -511,7 +511,7 @@ function DocsPage() {
                 ⚙️
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-api (Backend API)</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">API Backend</h3>
                 <p className="text-sm text-muted-foreground">Servidor de aplicação e lógica de negócio</p>
               </div>
             </div>
@@ -540,7 +540,7 @@ function DocsPage() {
                 🔧
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-core (Biblioteca Principal)</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">Biblioteca Core</h3>
                 <p className="text-sm text-muted-foreground">Classes base e funcionalidades compartilhadas</p>
               </div>
             </div>
@@ -566,7 +566,7 @@ function DocsPage() {
                 🔄
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-transforms (Transforms OSINT)</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">Módulo de Transforms OSINT</h3>
                 <p className="text-sm text-muted-foreground">Coleção de transforms para coleta e enriquecimento</p>
               </div>
             </div>
@@ -594,7 +594,7 @@ function DocsPage() {
                 📦
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">flowsint-types (Definições de Tipos)</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#dc2638]">Sistema de Tipos</h3>
                 <p className="text-sm text-muted-foreground">Schemas e tipos compartilhados</p>
               </div>
             </div>
@@ -692,20 +692,13 @@ function DocsPage() {
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-lg p-6">
-            <h3 className="font-semibold mb-4 text-[#dc2638]">📧 Canais de Suporte</h3>
+            <h3 className="font-semibold mb-4 text-[#dc2638]">📧 Canal de Suporte</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-[#dc2638] mt-1">•</span>
                 <div>
-                  <strong className="text-white">Email:</strong><br />
-                  support@scarletredsolutions.com
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#dc2638] mt-1">•</span>
-                <div>
-                  <strong className="text-white">GitHub:</strong><br />
-                  github.com/LukeCyberWorm/flowsint
+                  <strong className="text-white">Email de Suporte:</strong><br />
+                  contato@scarletredsolutions.com
                 </div>
               </li>
               <li className="flex items-start gap-2">
@@ -731,15 +724,8 @@ function DocsPage() {
               <li className="flex items-start gap-2">
                 <span className="text-[#dc2638] mt-1">•</span>
                 <div>
-                  <strong className="text-white">Repositório de Transforms:</strong><br />
-                  flowsint-transforms/
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#dc2638] mt-1">•</span>
-                <div>
-                  <strong className="text-white">Código Fonte:</strong><br />
-                  Licença AGPL-3.0 (Open Source)
+                  <strong className="text-white">Licenciamento:</strong><br />
+                  Software Proprietário - Todos os direitos reservados
                 </div>
               </li>
             </ul>
@@ -747,32 +733,32 @@ function DocsPage() {
         </div>
 
         <div className="mt-6 bg-card border border-border rounded-lg p-6">
-          <h3 className="font-semibold mb-4 text-[#dc2638]">🐛 Reportar Bugs e Sugerir Features</h3>
+          <h3 className="font-semibold mb-4 text-[#dc2638]">🐛 Reportar Bugs e Sugerir Melhorias</h3>
           <p className="text-sm text-muted-foreground mb-3">
-            Encontrou um bug ou tem uma ideia para melhorar o RSL-Scarlet? Sua contribuição é bem-vinda!
+            Encontrou um bug ou tem uma ideia para melhorar o RSL-Scarlet? Entre em contato com nossa equipe de suporte!
           </p>
           <ul className="text-sm text-muted-foreground space-y-2">
-            <li>1. <strong className="text-white">Verifique issues existentes</strong> no GitHub para evitar duplicatas</li>
-            <li>2. <strong className="text-white">Crie uma nova issue</strong> com título descritivo e reprodução passo a passo</li>
+            <li>1. <strong className="text-white">Entre em contato</strong> via email contato@scarletredsolutions.com</li>
+            <li>2. <strong className="text-white">Descreva o problema</strong> com título descritivo e reprodução passo a passo</li>
             <li>3. <strong className="text-white">Inclua logs e screenshots</strong> quando possível</li>
-            <li>4. <strong className="text-white">Para features,</strong> descreva o problema que resolve e casos de uso</li>
+            <li>4. <strong className="text-white">Para melhorias,</strong> descreva o problema que resolve e casos de uso</li>
           </ul>
         </div>
 
         <div className="mt-6 bg-card border border-border rounded-lg p-6">
-          <h3 className="font-semibold mb-4 text-[#dc2638]">💻 Contribuir com Código</h3>
+          <h3 className="font-semibold mb-4 text-[#dc2638]">🏢 Licenciamento Corporativo</h3>
           <p className="text-sm text-muted-foreground mb-3">
-            O RSL-Scarlet é open source (AGPL-3.0). Contribuições via Pull Requests são encorajadas!
+            O RSL-Scarlet é um software proprietário da Scarlet Red Solutions. Para informações sobre licenciamento corporativo, planos empresariais ou customizações específicas, entre em contato com nossa equipe comercial.
           </p>
           <div className="text-sm text-muted-foreground">
-            <strong className="text-white">Áreas onde você pode contribuir:</strong>
+            <strong className="text-white">Opções disponíveis:</strong>
             <ul className="mt-2 space-y-1">
-              <li>• Criar novos transforms OSINT</li>
-              <li>• Melhorar visualização do grafo</li>
-              <li>• Adicionar integrações com ferramentas externas</li>
-              <li>• Corrigir bugs e melhorar performance</li>
-              <li>• Escrever testes e documentação</li>
-              <li>• Traduzir interface para outros idiomas</li>
+              <li>• Licenças individuais e corporativas</li>
+              <li>• Desenvolvimento de transforms customizados</li>
+              <li>• Integrações com sistemas legados</li>
+              <li>• Suporte técnico dedicado (SLA)</li>
+              <li>• Treinamentos e certificações</li>
+              <li>• Instâncias privadas em nuvem ou on-premises</li>
             </ul>
           </div>
         </div>
@@ -785,7 +771,7 @@ function DocsPage() {
         <div className="space-y-4">
           <FAQItem
             question="Como faço backup dos meus dados?"
-            answer="Use 'docker exec' para criar dumps do PostgreSQL e Neo4j. Exemplo: docker exec flowsint-postgres-prod pg_dump -U flowsint flowsint > backup.sql. Guarde os backups em local seguro e criptografado."
+            answer="Use 'docker exec' para criar dumps do PostgreSQL e Neo4j. Exemplo: docker exec rsl-postgres pg_dump -U rsl_user rsl_db > backup.sql. Guarde os backups em local seguro e criptografado."
           />
           
           <FAQItem
@@ -795,7 +781,7 @@ function DocsPage() {
           
           <FAQItem
             question="Como adicionar um transform personalizado?"
-            answer="Crie um arquivo .py em flowsint-transforms/src/flowsint_transforms/ herdando de Transform. Implemente os métodos required_keys, execute() e register o transform. Veja exemplos em domain/to_ip.py."
+            answer="Entre em contato com nossa equipe comercial para solicitar o desenvolvimento de transforms customizados. Nossa equipe técnica pode criar transforms específicos para atender às necessidades do seu negócio."
           />
           
           <FAQItem
@@ -814,26 +800,29 @@ function DocsPage() {
           />
 
           <FAQItem
-            question="O RSL-Scarlet é gratuito?"
-            answer="Sim! O código é open source sob licença AGPL-3.0. Você pode usar, modificar e distribuir gratuitamente, mantendo a mesma licença. Suporte comercial está disponível via Scarlet Red Solutions."
+            question="Como obter acesso ao RSL-Scarlet?"
+            answer="O RSL-Scarlet é um software proprietário de acesso restrito. O acesso é concedido exclusivamente mediante contratação de consultoria especializada da Scarlet Red Solutions ou de empresas autorizadas. Não há versão gratuita ou planos de autosserviço. Entre em contato para avaliação de elegibilidade e proposta comercial personalizada."
           />
 
           <FAQItem
-            question="Limite de 30 usuários é configurável?"
-            answer="Sim. O limite está definido no backend (flowsint-api/app/api/). Para ambientes corporativos, o limite pode ser ajustado ou removido via configuração de ambiente."
+            question="Limite de usuários é configurável?"
+            answer="Sim. O limite de usuários depende do plano de licenciamento contratado. Para ambientes corporativos com necessidade de mais usuários, consulte nossa equipe comercial para planos empresariais personalizados."
           />
         </div>
       </section>
 
       {/* Rodapé */}
       <footer className="mt-16 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-        <p>© 2025 Scarlet Red Solutions. Todos os direitos reservados.</p>
-        <p className="mt-2">RSL-Scarlet v1.0.0 - Red Shadow Link Platform</p>
+        <p>© 2025 Scarlet Red Solutions LTDA. Todos os direitos reservados.</p>
+        <p className="mt-2">RSL-Scarlet® v1.0.0 - Red Shadow Link Platform</p>
         <p className="mt-2 text-xs">
-          Built with React + Vite + TypeScript | Backend: FastAPI + PostgreSQL + Neo4j
+          Software Proprietário | Acesso Restrito | Marca Registrada
         </p>
         <p className="mt-1 text-xs">
-          Open Source (AGPL-3.0) | <a href="https://github.com/LukeCyberWorm/flowsint" className="text-[#dc2638] hover:underline" target="_blank" rel="noopener noreferrer">GitHub</a>
+          Proibido modificação, engenharia reversa ou redistribuição sem autorização expressa
+        </p>
+        <p className="mt-1 text-xs">
+          CNPJ: 57.238.225/0001-06 | <a href="https://scarletredsolutions.com" className="text-[#dc2638] hover:underline" target="_blank" rel="noopener noreferrer">scarletredsolutions.com</a>
         </p>
       </footer>
       </div>

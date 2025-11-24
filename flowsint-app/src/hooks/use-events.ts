@@ -5,7 +5,8 @@ import { EventLevel } from '@/types'
 import { useGraphControls } from '@/stores/graph-controls-store'
 import { queryKeys } from '@/api/query-keys'
 
-const API_URL = import.meta.env.VITE_API_URL
+// Use window.location.origin to match the page's protocol
+const API_URL = typeof window !== 'undefined' ? window.location.origin : ''
 
 
 export function useEvents(sketch_id: string | undefined) {
@@ -33,7 +34,7 @@ export function useEvents(sketch_id: string | undefined) {
     if (!sketch_id) return
 
     const eventSource = new EventSource(
-      `${API_URL}/api/events/sketch/${sketch_id}/stream`
+      `/api/events/sketch/${sketch_id}/stream`
     )
 
     eventSource.onmessage = (e) => {

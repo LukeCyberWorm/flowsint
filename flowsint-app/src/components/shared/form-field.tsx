@@ -40,6 +40,7 @@ const FormField: React.FC<FormFieldProps> = ({
         id={name}
         type={type}
         placeholder={placeholder}
+        autoComplete={rest.autoComplete}
         className={`mt-1 block w-full px-3 py-2 border ${
           fieldError ? 'border-red-300' : 'border-border'
         } rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm`}

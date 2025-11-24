@@ -2,7 +2,7 @@ import { fetchWithAuth } from './api'
 
 export const transformService = {
   get: async (type?: string): Promise<any> => {
-    const url = type ? `/api/transforms?category=${type}` : '/api/transforms'
+    const url = type ? `/api/transforms/?category=${type}` : '/api/transforms/'
     return fetchWithAuth(url, {
       method: 'GET'
     })

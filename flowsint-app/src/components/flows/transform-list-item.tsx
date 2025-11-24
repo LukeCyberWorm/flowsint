@@ -30,11 +30,13 @@ function areEqual(prevProps: TransformItemProps, nextProps: TransformItemProps) 
 // Memoized transform item component for the sidebar
 const TransformItem = memo(({ transform, category }: TransformItemProps) => {
   const colors = useNodesDisplaySettings((s) => s.colors)
-  const borderInputColor = colors[transform.inputs.type.toLowerCase()]
-  const borderOutputColor = colors[transform.outputs.type.toLowerCase()]
+  const inputType = transform.inputs?.type?.toLowerCase() || 'default'
+  const outputType = transform.outputs?.type?.toLowerCase() || 'default'
+  const borderInputColor = colors[inputType]
+  const borderOutputColor = colors[outputType]
   const Icon =
     transform.type === 'type'
-      ? useIcon(transform.outputs.type.toLowerCase() as string, null)
+      ? useIcon(outputType as string, null)
       : transform.icon
         ? useIcon(transform.icon, null)
         : null

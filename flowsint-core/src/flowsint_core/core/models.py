@@ -99,6 +99,9 @@ class Profile(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
+    created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
+    trial_ends_at = mapped_column(DateTime(timezone=True), nullable=True)
+    is_paid: Mapped[bool] = mapped_column(default=False)
     investigation_roles = relationship("InvestigationUserRole", back_populates="user")
 
 

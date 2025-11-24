@@ -3,6 +3,8 @@ from flowsint_core.core.graph_db import Neo4jConnection
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import RedirectResponse
 
 # Routes to be included
 from app.api.routes import auth
@@ -29,9 +31,22 @@ origins = [
 ]
 
 
+# Middleware to force HTTPS in redirects
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        # If it's a redirect response, ensure it uses HTTPS
+        if response.status_code in (301, 302, 303, 307, 308):
+            location = response.headers.get("location", "")
+            if location.startswith("http://"):
+                response.headers["location"] = location.replace("http://", "https://", 1)
+        return response
+
+
 app = FastAPI()
 neo4j_connection = Neo4jConnection(URI, USERNAME, PASSWORD)
 
+app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

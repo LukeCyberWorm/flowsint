@@ -61,11 +61,22 @@ function Register() {
           />
           <h1 className="text-3xl font-extrabold tracking-wide">RSL - Scarlet</h1>
           <p className="text-sm text-gray-300">
-            Seja bem-vindo ao sistema OSINT Red Shadow Link
+            Crie sua conta e inicie período de avaliação gratuito
           </p>
           <p className="text-xs text-gray-400 uppercase tracking-[0.3em]">
             By Scarlet Red Solutions
           </p>
+          
+          {/* Trial Notice */}
+          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-400/30 rounded-lg">
+            <p className="text-sm text-blue-200 mb-2">
+              <span className="font-semibold">🎁 5 dias de avaliação gratuita</span>
+            </p>
+            <p className="text-xs text-blue-300/80 leading-relaxed">
+              Explore todas as funcionalidades do RSL-Scarlet por 5 dias. 
+              Após este período, entre em contato para adquirir uma licença permanente.
+            </p>
+          </div>
         </div>
 
         <FormProvider {...methods}>
@@ -79,14 +90,15 @@ function Register() {
             )}
 
             <div className="rounded-md shadow-sm space-y-4">
-              <FormField name="username" label="Nome de usuário" placeholder="Escolha um nome" />
-              <FormField name="email" label="E-mail" type="email" placeholder="Seu e-mail" />
-              <FormField name="password" label="Senha" type="password" placeholder="Crie uma senha" />
+              <FormField name="username" label="Nome de usuário" placeholder="Escolha um nome" autoComplete="username" />
+              <FormField name="email" label="E-mail" type="email" placeholder="Seu e-mail" autoComplete="email" />
+              <FormField name="password" label="Senha" type="password" placeholder="Crie uma senha" autoComplete="new-password" />
               <FormField
                 name="confirmPassword"
                 label="Confirme a senha"
                 type="password"
                 placeholder="Repita a senha"
+                autoComplete="new-password"
               />
             </div>
 

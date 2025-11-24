@@ -22,12 +22,22 @@ export function useLaunchTransform(askUser: boolean = false) {
     }
     const body = JSON.stringify({ node_ids, sketch_id })
     const count = node_ids.length
-    toast.promise(transformService.launch(transformName, body), {
-      loading: 'Loading...',
-      success: () =>
-        `Transform ${transformName} has been launched on ${count} node${count > 1 ? 's' : ''}.`,
-      error: () => `An error occurred launching transform.`
-    })
+    console.log('[useLaunchTransform] Launching transform:', transformName, 'with body:', body)
+    toast.promise(
+      transformService.launch(transformName, body).then((response) => {
+        console.log('[useLaunchTransform] Transform response:', response)
+        return response
+      }),
+      {
+        loading: 'Loading...',
+        success: () =>
+          `Transform ${transformName} has been launched on ${count} node${count > 1 ? 's' : ''}.`,
+        error: (err) => {
+          console.error('[useLaunchTransform] Transform error:', err)
+          return `An error occurred launching transform.`
+        }
+      }
+    )
     openClonsole()
     return
   }

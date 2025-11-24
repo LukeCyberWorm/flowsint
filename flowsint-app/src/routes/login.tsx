@@ -64,8 +64,30 @@ function Login() {
           <form className="mt-8 space-y-6" onSubmit={methods.handleSubmit(onSubmit)}>
             {/* Display login error */}
             {login.error && (
-              <div className="p-3 mb-4 text-sm bg-red-500/10 border border-red-400 text-red-300 rounded">
-                {login.error instanceof Error ? login.error.message : 'Não foi possível entrar. Tente novamente.'}
+              <div className="p-4 mb-4 text-sm bg-red-500/10 border border-red-400 text-red-300 rounded-lg">
+                <p className="font-semibold mb-2">
+                  {(login.error instanceof Error && login.error.message.includes('período de avaliação expirou')) 
+                    ? '⏰ Período de Avaliação Encerrado' 
+                    : '❌ Erro de Autenticação'}
+                </p>
+                <p className="leading-relaxed">
+                  {login.error instanceof Error ? login.error.message : 'Não foi possível entrar. Verifique suas credenciais e tente novamente.'}
+                </p>
+                {login.error instanceof Error && login.error.message.includes('contato@scarletredsolutions.com') && (
+                  <div className="mt-3 pt-3 border-t border-red-400/30">
+                    <p className="text-xs text-red-200">
+                      Para mais informações sobre licenciamento e consultoria de implantação, acesse:{' '}
+                      <a 
+                        href="https://scarletredsolutions.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="underline font-semibold hover:text-white transition-colors"
+                      >
+                        scarletredsolutions.com
+                      </a>
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -75,6 +97,7 @@ function Login() {
                 name="username"
                 label="E-mail"
                 placeholder="Seu e-mail"
+                autoComplete="email"
                 disabled={login.isPending}
               />
 
@@ -84,6 +107,7 @@ function Login() {
                 label="Senha"
                 type="password"
                 placeholder="Sua senha"
+                autoComplete="current-password"
                 disabled={login.isPending}
               />
             </div>

@@ -22,7 +22,7 @@ export class ChatService {
     context?: any
   ): Promise<string> {
     const token = useAuthStore.getState().token
-    const API_URL = import.meta.env.VITE_API_URL
+    const API_URL = typeof window !== 'undefined' ? window.location.origin : '' // Use page's protocol
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
