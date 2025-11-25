@@ -1,28 +1,72 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Scan, Upload, Link as LinkIcon, Search, Loader2, User, MapPin, Calendar, Mail, Phone, Globe, Facebook, Instagram, Linkedin, Twitter, Github } from 'lucide-react'
+import { Scan, Upload, Link as LinkIcon, Search, Loader2, User, MapPin, Calendar, Mail, Phone, Globe, Facebook, Instagram, Linkedin, Twitter, Github, AlertCircle } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { fetchWithAuth } from '@/api/api'
 
 export const Route = createFileRoute('/_auth/dashboard/face-recognition')({
   component: FaceRecognitionPage
 })
+
+interface FaceDetection {
+  faces_detected: number
+  faces: Array<{
+    bbox: number[]
+    confidence: number
+    age: number
+    gender: string
+    embedding: number[]
+  }>
+}
+
+interface GeolocationData {
+  coordinates?: {
+    latitude: number
+    longitude: number
+  }
+  location_name?: string
+  confidence?: number
+}
+
+interface OSINTResult {
+  platforms: Record<string, any>
+}
+
+interface AnalysisResult {
+  face_detection: FaceDetection
+  geolocation?: GeolocationData
+  osint_results?: OSINTResult
+  llm_analysis: {
+    profile_summary: string
+    risk_assessment: string
+    recommendations: string[]
+  }
+  processing_time: number
+}
 
 function FaceRecognitionPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [hasResults, setHasResults] = useState(false)
+  const [results, setResults] = useState<AnalysisResult | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const uploadedFileRef = useRef<File | null>(null)
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      uploadedFileRef.current = file
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
+        setError(null)
+        setResults(null)
+        setHasResults(false)
       }
       reader.readAsDataURL(file)
     }
@@ -39,9 +83,13 @@ function FaceRecognitionPage() {
     
     const file = e.dataTransfer.files?.[0]
     if (file && file.type.startsWith('image/')) {
+      uploadedFileRef.current = file
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
+        setError(null)
+        setResults(null)
+        setHasResults(false)
       }
       reader.readAsDataURL(file)
     }
@@ -53,13 +101,35 @@ function FaceRecognitionPage() {
     }
   }
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    if (!uploadedFileRef.current) {
+      setError("Nenhuma imagem foi carregada. Por favor, faça upload de uma imagem.")
+      return
+    }
+
     setIsSearching(true)
-    // Simular busca (substituir com API real)
-    setTimeout(() => {
-      setIsSearching(false)
+    setError(null)
+    setResults(null)
+    setHasResults(false)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', uploadedFileRef.current)
+
+      const response = await fetchWithAuth('/api/face-recognition/analyze', {
+        method: 'POST',
+        body: formData
+      })
+
+      setResults(response)
       setHasResults(true)
-    }, 2000)
+    } catch (err: any) {
+      console.error('Erro ao analisar imagem:', err)
+      const errorMessage = err.message || 'Erro desconhecido ao processar a imagem'
+      setError(errorMessage)
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   return (
@@ -191,7 +261,13 @@ function FaceRecognitionPage() {
               Resultados da Busca
             </h2>
             
-            {!hasResults ? (
+            {error ? (
+              <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                <AlertCircle className="h-16 w-16 text-destructive/50 mb-4" />
+                <p className="text-destructive font-medium mb-2">Erro no processamento</p>
+                <p className="text-sm text-muted-foreground max-w-md">{error}</p>
+              </div>
+            ) : !hasResults ? (
               <div className="flex flex-col items-center justify-center h-[400px] text-center">
                 <Scan className="h-16 w-16 text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground">
@@ -201,48 +277,81 @@ function FaceRecognitionPage() {
                   Faça upload de uma imagem e clique em "Iniciar Reconhecimento"
                 </p>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Match Score */}
-                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Precisão da Correspondência</span>
-                    <span className="text-2xl font-bold text-green-500">98.7%</span>
-                  </div>
-                </div>
-
-                {/* Reference Photos */}
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Fotos de Referência</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="aspect-square bg-muted rounded-lg border border-border flex items-center justify-center">
-                        <User className="h-8 w-8 text-muted-foreground" />
+            ) : results ? (
+              <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                {/* Face Detection Results */}
+                <div className="border border-border rounded-lg p-4">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <User className="h-4 w-4 text-[#dc2638]" />
+                    Detecção Facial
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Faces detectadas:</span>
+                      <span className="font-medium">{results.face_detection.faces_detected}</span>
+                    </div>
+                    {results.face_detection.faces.map((face, idx) => (
+                      <div key={idx} className="pl-4 border-l-2 border-[#dc2638]/20 mt-2">
+                        <p className="font-medium mb-1">Face {idx + 1}</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Idade:</span>{' '}
+                            <span>{face.age} anos</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Gênero:</span>{' '}
+                            <span>{face.gender === 'M' ? 'Masculino' : 'Feminino'}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Confiança:</span>{' '}
+                            <span>{(face.confidence * 100).toFixed(1)}%</span>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Quick Info */}
-                <div className="pt-4 border-t border-border">
-                  <h3 className="text-sm font-semibold mb-2">Informações Básicas</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span>Nome identificado abaixo</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>Localização detectada</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>Perfis encontrados em múltiplas plataformas</span>
+                {/* Geolocation Results */}
+                {results.geolocation && (results.geolocation.coordinates?.latitude || results.geolocation.location_name) && (
+                  <div className="border border-border rounded-lg p-4">
+                    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-[#dc2638]" />
+                      Geolocalização
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      {results.geolocation.coordinates?.latitude != null && results.geolocation.coordinates?.longitude != null && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Coordenadas:</span>
+                          <span className="font-mono text-xs">
+                            {results.geolocation.coordinates.latitude.toFixed(6)}, {results.geolocation.coordinates.longitude.toFixed(6)}
+                          </span>
+                        </div>
+                      )}
+                      {results.geolocation.location_name && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Local:</span>
+                          <span>{results.geolocation.location_name}</span>
+                        </div>
+                      )}
+                      {results.geolocation.confidence != null && results.geolocation.confidence > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Confiança:</span>
+                          <span>{(results.geolocation.confidence * 100).toFixed(1)}%</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* Processing Time */}
+                {results.processing_time != null && (
+                  <div className="text-xs text-muted-foreground text-center pt-2">
+                    Processado em {results.processing_time.toFixed(2)} segundos
+                  </div>
+                )}
               </div>
-            )}
+            ) : null}
           </Card>
         </div>
 
@@ -253,7 +362,7 @@ function FaceRecognitionPage() {
             Relatório Completo
           </h2>
           
-          {!hasResults ? (
+          {!hasResults || !results ? (
             <div className="bg-muted/50 rounded-lg p-8 text-center">
               <p className="text-muted-foreground">
                 O relatório detalhado com fontes, links e dados de redes sociais aparecerá aqui após a busca
@@ -261,144 +370,76 @@ function FaceRecognitionPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Identity Section */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-3 text-[#dc2638]">IDENTIDADE ENCONTRADA</h3>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-3">
-                    <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="font-semibold">John Doe Silva</p>
-                      <p className="text-sm text-muted-foreground">Identificação baseada em 15 fontes</p>
-                    </div>
+              {/* LLM Analysis */}
+              {results.llm_analysis && (
+                <div className="space-y-4">
+                  {/* Profile Summary */}
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <User className="h-4 w-4 text-[#dc2638]" />
+                      Resumo do Perfil
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {results.llm_analysis.profile_summary}
+                    </p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-sm">São Paulo, SP - Brasil</p>
-                    </div>
+
+                  {/* Risk Assessment */}
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-[#dc2638]" />
+                      Avaliação de Risco
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {results.llm_analysis.risk_assessment}
+                    </p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-sm">Idade estimada: 28-32 anos</p>
+
+                  {/* Recommendations */}
+                  {results.llm_analysis.recommendations && results.llm_analysis.recommendations.length > 0 && (
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <Search className="h-4 w-4 text-[#dc2638]" />
+                        Recomendações
+                      </h3>
+                      <ul className="space-y-2">
+                        {results.llm_analysis.recommendations.map((rec, idx) => (
+                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <span className="text-[#dc2638] mt-1">•</span>
+                            <span className="flex-1">{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* OSINT Results (if available) */}
+              {results.osint_results && Array.isArray(results.osint_results) && results.osint_results.length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-[#dc2638]" />
+                    Perfis Encontrados
+                  </h3>
+                  <div className="space-y-2">
+                    {results.osint_results.map((result: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between text-sm">
+                        <span className="capitalize">{result.platform}</span>
+                        <a 
+                          href={result.profile_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[#dc2638] hover:underline flex items-center gap-1"
+                        >
+                          Ver perfil
+                          <span className="text-xs text-muted-foreground">({(result.confidence_score * 100).toFixed(0)}%)</span>
+                        </a>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Social Media Section */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-3 text-[#dc2638]">REDES SOCIAIS ENCONTRADAS</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Facebook className="h-5 w-5 text-blue-500" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">facebook.com/johndoe</p>
-                      <p className="text-xs text-muted-foreground">2.5k seguidores</p>
-                    </div>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Instagram className="h-5 w-5 text-pink-500" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">@johndoe_sp</p>
-                      <p className="text-xs text-muted-foreground">1.8k seguidores</p>
-                    </div>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Linkedin className="h-5 w-5 text-blue-600" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">linkedin.com/in/johndoe</p>
-                      <p className="text-xs text-muted-foreground">500+ conexões</p>
-                    </div>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Twitter className="h-5 w-5 text-sky-500" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">@johndoe</p>
-                      <p className="text-xs text-muted-foreground">892 seguidores</p>
-                    </div>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Github className="h-5 w-5 text-gray-400" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">github.com/johndoe</p>
-                      <p className="text-xs text-muted-foreground">45 repositórios</p>
-                    </div>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                    <Globe className="h-5 w-5 text-green-500" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">johndoe.com.br</p>
-                      <p className="text-xs text-muted-foreground">Website pessoal</p>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* Contact Info Section */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-3 text-[#dc2638]">INFORMAÇÕES DE CONTATO</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>john.doe@email.com</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>+55 (11) 98765-4321</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <span>johndoe.com.br</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sources Section */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <h3 className="text-sm font-semibold mb-3 text-[#dc2638]">FONTES E REFERÊNCIAS</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-start gap-2">
-                    <span className="text-[#dc2638] font-mono">•</span>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium text-foreground">Facebook Graph API:</span> Perfil público verificado em 24/11/2025
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-[#dc2638] font-mono">•</span>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium text-foreground">LinkedIn API:</span> Dados profissionais atualizados
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-[#dc2638] font-mono">•</span>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium text-foreground">Google Images:</span> 12 correspondências de imagem encontradas
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-[#dc2638] font-mono">•</span>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium text-foreground">PimEyes:</span> 8 fotos públicas correspondentes
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-[#dc2638] font-mono">•</span>
-                    <p className="text-muted-foreground">
-                      <span className="font-medium text-foreground">Clearview AI:</span> Correspondência de alta confiança (98.7%)
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Export Button */}
-              <div className="flex justify-end">
-                <Button variant="outline" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Exportar Relatório
-                </Button>
-              </div>
+              )}
             </div>
           )}
         </Card>

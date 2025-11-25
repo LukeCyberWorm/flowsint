@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flowsint-face-recognition
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: face-recognition-config
+  namespace: flowsint-face-recognition
+data:
+  SERVICE_NAME: "face-recognition"
+  SERVICE_PORT: "8000"
+  LOG_LEVEL: "INFO"
+  INSIGHTFACE_MODEL: "buffalo_l"
+  INSIGHTFACE_DET_SIZE: "640"
+  OSINT_CONFIDENCE_THRESHOLD: "0.85"
+  OSINT_RATE_LIMIT_REQUESTS: "10"
+  OSINT_RATE_LIMIT_SECONDS: "60"
+  MAX_FILE_SIZE_MB: "10"
+  HEALTH_CHECK_INTERVAL: "30"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: face-recognition-secrets
+  namespace: flowsint-face-recognition
+type: Opaque
+stringData:
+  GEMINI_API_KEY: "your_gemini_api_key_here"
+  GEOSPY_API_KEY: "your_geospy_api_key_here"
+  GOOGLE_MAPS_API_KEY: "your_google_maps_api_key_here"
+  REDIS_URL: "redis://redis:6379/1"
+  POSTGRES_URL: "postgresql://flowsint:flowsint@postgres:5432/flowsint_face"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: face-models-pvc
+  namespace: flowsint-face-recognition
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: face-recognition-deployment
+  namespace: flowsint-face-recognition
+  labels:
+    app: face-recognition
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: face-recognition
+  template:
+    metadata:
+      labels:
+        app: face-recognition
+    spec:
+      containers:
+      - name: face-recognition
+        image: flowsint-face-recognition:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: face-recognition-config
+        - secretRef:
+            name: face-recognition-secrets
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: face-models
+          mountPath: /root/.insightface
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: face-models
+        persistentVolumeClaim:
+          claimName: face-models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: face-recognition-service
+  namespace: flowsint-face-recognition
+spec:
+  selector:
+    app: face-recognition
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: face-recognition-hpa
+  namespace: flowsint-face-recognition
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: face-recognition-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

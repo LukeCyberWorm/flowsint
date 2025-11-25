@@ -21,7 +21,7 @@ export const Sidebar = memo(() => {
   const adminEmails = [
     'lucas.oliveira@scarletredsolutions.com',
     'rafaelmcpsouza@hotmail.com',
-    'lleandroaugustomiranda761@gmail.com'
+    'leandroaugustomiranda761@gmail.com'
   ]
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false
 

@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  face-recognition:
+    build: .
+    container_name: flowsint-face-recognition
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=face-recognition
+      - SERVICE_PORT=8000
+      - LOG_LEVEL=INFO
+      - INSIGHTFACE_MODEL=buffalo_l
+      - INSIGHTFACE_DET_SIZE=640
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEOSPY_API_KEY=${GEOSPY_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - REDIS_URL=redis://redis:6379/1
+      - POSTGRES_URL=postgresql://flowsint:flowsint@postgres:5432/flowsint_face
+      - OSINT_CONFIDENCE_THRESHOLD=0.85
+      - OSINT_RATE_LIMIT_REQUESTS=10
+      - OSINT_RATE_LIMIT_SECONDS=60
+      - MAX_FILE_SIZE_MB=10
+    volumes:
+      - insightface-models:/root/.insightface
+      - ./app:/app/app
+    networks:
+      - flowsint-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:alpine
+    container_name: flowsint-face-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - flowsint-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: flowsint-face-postgres
+    environment:
+      - POSTGRES_USER=flowsint
+      - POSTGRES_PASSWORD=flowsint
+      - POSTGRES_DB=flowsint_face
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - flowsint-network
+    restart: unless-stopped
+
+volumes:
+  insightface-models:
+  postgres-data:
+
+networks:
+  flowsint-network:
+    driver: bridge
