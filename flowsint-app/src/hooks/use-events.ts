@@ -39,8 +39,18 @@ export function useEvents(sketch_id: string | undefined) {
 
     eventSource.onmessage = (e) => {
       try {
-        const raw = JSON.parse(e.data) as any
-        const event = JSON.parse(raw.data) as Event
+        // Try to parse the SSE data - handle both single and double-wrapped JSON
+        let event: Event
+        
+        try {
+          // First attempt: direct parse (correct format)
+          event = JSON.parse(e.data) as Event
+        } catch {
+          // Second attempt: double-wrapped JSON (legacy format)
+          const raw = JSON.parse(e.data) as any
+          event = JSON.parse(raw.data) as Event
+        }
+        
         if (event.type === EventLevel.COMPLETED) {
           refetchGraph()
           // const nodes = event.payload.nodes as GraphNode[]
@@ -53,7 +63,7 @@ export function useEvents(sketch_id: string | undefined) {
         }
         setLiveLogs((prev) => [...prev.slice(-99), event])
       } catch (error) {
-        console.error('[useSketchEvents] Failed to parse SSE event:', error)
+        console.error('[useSketchEvents] Failed to parse SSE event:', error, 'Raw data:', e.data)
       }
     }
 

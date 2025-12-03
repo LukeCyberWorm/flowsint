@@ -75,13 +75,20 @@ class FaceService:
             # Format results - Convert all numpy types to native Python types
             results = []
             for idx, face in enumerate(faces):
+                # Convert gender: 0=Female, 1=Male (InsightFace standard)
+                gender_value = None
+                if hasattr(face, 'gender') and face.gender is not None:
+                    gender_int = int(face.gender)
+                    gender_value = 'M' if gender_int == 1 else 'F'
+                    logger.info(f"Face {idx}: gender raw={face.gender}, converted={gender_value}, age={int(face.age) if hasattr(face, 'age') else 'N/A'}")
+                
                 face_dict = {
                     "face_id": int(idx),
                     "bbox": [float(x) for x in face.bbox.tolist()],  # [x1, y1, x2, y2]
                     "landmarks": [[float(x) for x in point] for point in face.kps.tolist()] if hasattr(face, 'kps') else None,
                     "embedding": [float(x) for x in face.embedding.tolist()],  # 512-dim vector for buffalo_l
                     "det_score": float(face.det_score),  # Detection confidence
-                    "gender": int(face.gender) if hasattr(face, 'gender') else None,
+                    "gender": gender_value,
                     "age": int(face.age) if hasattr(face, 'age') else None,
                 }
                 results.append(face_dict)
