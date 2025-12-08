@@ -29,7 +29,8 @@ def login_for_access_token(
         admin_emails = [
             "lucas.oliveira@scarletredsolutions.com",
             "rafaelmcpsouza@hotmail.com",
-            "leandroaugustomiranda761@gmail.com"
+            "leandroaugustomiranda761@gmail.com",
+            "douglasmunizdutra@gmail.com"
         ]
         
         # Verificar se o período de trial expirou
@@ -81,7 +82,8 @@ def register(user: ProfileCreate, db: Session = Depends(get_db)):
         admin_emails = [
             "lucas.oliveira@scarletredsolutions.com",
             "rafaelmcpsouza@hotmail.com",
-            "leandroaugustomiranda761@gmail.com"
+            "leandroaugustomiranda761@gmail.com",
+            "douglasmunizdutra@gmail.com"
         ]
         
         # Determinar se o usuário tem acesso pago
