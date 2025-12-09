@@ -18,6 +18,7 @@ import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as AuthDashboardIndexRouteImport } from './routes/_auth.dashboard.index'
 import { Route as AuthDashboardVaultRouteImport } from './routes/_auth.dashboard.vault'
 import { Route as AuthDashboardToolsRouteImport } from './routes/_auth.dashboard.tools'
+import { Route as AuthDashboardScarletIaRouteImport } from './routes/_auth.dashboard.scarlet-ia'
 import { Route as AuthDashboardFaceRecognitionRouteImport } from './routes/_auth.dashboard.face-recognition'
 import { Route as AuthDashboardDocsRouteImport } from './routes/_auth.dashboard.docs'
 import { Route as AuthDashboardInvestigationsIndexRouteImport } from './routes/_auth.dashboard.investigations.index'
@@ -70,6 +71,11 @@ const AuthDashboardVaultRoute = AuthDashboardVaultRouteImport.update({
 const AuthDashboardToolsRoute = AuthDashboardToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => AuthDashboardRoute,
+} as any)
+const AuthDashboardScarletIaRoute = AuthDashboardScarletIaRouteImport.update({
+  id: '/scarlet-ia',
+  path: '/scarlet-ia',
   getParentRoute: () => AuthDashboardRoute,
 } as any)
 const AuthDashboardFaceRecognitionRoute =
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthDashboardRouteWithChildren
   '/dashboard/docs': typeof AuthDashboardDocsRoute
   '/dashboard/face-recognition': typeof AuthDashboardFaceRecognitionRoute
+  '/dashboard/scarlet-ia': typeof AuthDashboardScarletIaRoute
   '/dashboard/tools': typeof AuthDashboardToolsRoute
   '/dashboard/vault': typeof AuthDashboardVaultRoute
   '/dashboard/': typeof AuthDashboardIndexRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/dashboard/docs': typeof AuthDashboardDocsRoute
   '/dashboard/face-recognition': typeof AuthDashboardFaceRecognitionRoute
+  '/dashboard/scarlet-ia': typeof AuthDashboardScarletIaRoute
   '/dashboard/tools': typeof AuthDashboardToolsRoute
   '/dashboard/vault': typeof AuthDashboardVaultRoute
   '/dashboard': typeof AuthDashboardIndexRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_auth/dashboard': typeof AuthDashboardRouteWithChildren
   '/_auth/dashboard/docs': typeof AuthDashboardDocsRoute
   '/_auth/dashboard/face-recognition': typeof AuthDashboardFaceRecognitionRoute
+  '/_auth/dashboard/scarlet-ia': typeof AuthDashboardScarletIaRoute
   '/_auth/dashboard/tools': typeof AuthDashboardToolsRoute
   '/_auth/dashboard/vault': typeof AuthDashboardVaultRoute
   '/_auth/dashboard/': typeof AuthDashboardIndexRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/docs'
     | '/dashboard/face-recognition'
+    | '/dashboard/scarlet-ia'
     | '/dashboard/tools'
     | '/dashboard/vault'
     | '/dashboard/'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/docs'
     | '/dashboard/face-recognition'
+    | '/dashboard/scarlet-ia'
     | '/dashboard/tools'
     | '/dashboard/vault'
     | '/dashboard'
@@ -385,6 +396,7 @@ declare module '@tanstack/react-router' {
 interface AuthDashboardRouteChildren {
   AuthDashboardDocsRoute: typeof AuthDashboardDocsRoute
   AuthDashboardFaceRecognitionRoute: typeof AuthDashboardFaceRecognitionRoute
+  AuthDashboardScarletIaRoute: typeof AuthDashboardScarletIaRoute
   AuthDashboardToolsRoute: typeof AuthDashboardToolsRoute
   AuthDashboardVaultRoute: typeof AuthDashboardVaultRoute
   AuthDashboardIndexRoute: typeof AuthDashboardIndexRoute
@@ -400,6 +412,7 @@ interface AuthDashboardRouteChildren {
 const AuthDashboardRouteChildren: AuthDashboardRouteChildren = {
   AuthDashboardDocsRoute: AuthDashboardDocsRoute,
   AuthDashboardFaceRecognitionRoute: AuthDashboardFaceRecognitionRoute,
+  AuthDashboardScarletIaRoute: AuthDashboardScarletIaRoute,
   AuthDashboardToolsRoute: AuthDashboardToolsRoute,
   AuthDashboardVaultRoute: AuthDashboardVaultRoute,
   AuthDashboardIndexRoute: AuthDashboardIndexRoute,
