@@ -49,6 +49,12 @@ export const TerminalLogViewer = ({
     } else {
       // Write all existing logs
       logsRef.current.forEach((log) => {
+        // Validate log structure before accessing properties
+        if (!log || !log.payload || typeof log.payload.message !== 'string') {
+          console.warn('[TerminalLogViewer] Invalid log entry during init:', log)
+          return
+        }
+        
         const formattedLog = formatLogEntry(
           log.created_at,
           log.type,
@@ -80,10 +86,20 @@ export const TerminalLogViewer = ({
     // Find new logs by comparing timestamps and messages
     // This works even when the total length stays the same (e.g., 100 logs with slice)
     const newLogs = currentLogs.filter((currentLog) => {
+      // Skip invalid logs in the filter comparison
+      if (!currentLog || !currentLog.payload || typeof currentLog.payload.message !== 'string') {
+        return false
+      }
+      
       return !previousLogs.some(
-        (prevLog) =>
-          prevLog.created_at === currentLog.created_at &&
-          prevLog.payload.message === currentLog.payload.message
+        (prevLog) => {
+          // Safe comparison with validation
+          if (!prevLog || !prevLog.payload || typeof prevLog.payload.message !== 'string') {
+            return false
+          }
+          return prevLog.created_at === currentLog.created_at &&
+                 prevLog.payload.message === currentLog.payload.message
+        }
       )
     })
 
@@ -91,6 +107,12 @@ export const TerminalLogViewer = ({
       console.log('[TerminalLogViewer] Writing new logs', newLogs.length)
 
       newLogs.forEach((log) => {
+        // Validate log structure before accessing properties
+        if (!log || !log.payload || typeof log.payload.message !== 'string') {
+          console.warn('[TerminalLogViewer] Invalid log entry:', log)
+          return
+        }
+        
         const formattedLog = formatLogEntry(
           log.created_at,
           log.type,

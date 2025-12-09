@@ -42,12 +42,18 @@ export function useEvents(sketch_id: string | undefined) {
         // Try to parse the SSE data - handle both single and double-wrapped JSON
         let event: Event
         
+        // Clean the data string if it starts with "data: " (malformed SSE)
+        let dataStr = e.data
+        if (typeof dataStr === 'string' && dataStr.startsWith('data: ')) {
+          dataStr = dataStr.substring(6) // Remove "data: " prefix
+        }
+        
         try {
           // First attempt: direct parse (correct format)
-          event = JSON.parse(e.data) as Event
+          event = JSON.parse(dataStr) as Event
         } catch {
           // Second attempt: double-wrapped JSON (legacy format)
-          const raw = JSON.parse(e.data) as any
+          const raw = JSON.parse(dataStr) as any
           event = JSON.parse(raw.data) as Event
         }
         
