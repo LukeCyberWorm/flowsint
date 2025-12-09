@@ -1,4 +1,4 @@
-import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes, BookOpen, Scan } from 'lucide-react'
+import { Home, Lock, type LucideIcon, PanelLeft, Workflow, Shapes, BookOpen, Scan, Brain } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useLayoutStore } from '@/stores/layout-store'
 import { Button } from '../ui/button'
@@ -34,7 +34,10 @@ export const Sidebar = memo(() => {
     { icon: Shapes, label: 'Custom types', href: '/dashboard/custom-types', tourId: 'investigations' },
     { icon: Lock, label: 'Vault', href: '/dashboard/vault', tourId: 'vault' },
     { icon: BookOpen, label: 'Documentação', href: '/dashboard/docs', tourId: 'docs' },
-    ...(isAdmin ? [{ icon: Scan, label: 'Face Recognition', href: '/dashboard/face-recognition', tourId: 'face-recognition' }] : [])
+    ...(isAdmin ? [
+      { icon: Scan, label: 'Face Recognition', href: '/dashboard/face-recognition', tourId: 'face-recognition' },
+      { icon: Brain, label: 'Scarlet-IA', href: '/dashboard/scarlet-ia', tourId: 'scarlet-ia' }
+    ] : [])
   ]
 
   console.log('[Sidebar] Total nav items:', navItems.length)
