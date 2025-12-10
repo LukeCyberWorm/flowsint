@@ -36,6 +36,10 @@ def run_transform(
     session = SessionLocal()
 
     try:
+        print(f"[TRANSFORM DEBUG] Transform: {transform_name}")
+        print(f"[TRANSFORM DEBUG] Serialized objects: {serialized_objects}")
+        print(f"[TRANSFORM DEBUG] Sketch ID: {sketch_id}")
+        print(f"[TRANSFORM DEBUG] Owner ID: {owner_id}")
 
         scan_id = uuid.UUID(self.request.id)
 
@@ -68,13 +72,22 @@ def run_transform(
             vault=vault,
         )
 
+        print(f"[TRANSFORM DEBUG] Transform instance created: {transform}")
+        print(f"[TRANSFORM DEBUG] About to execute with values: {serialized_objects}")
+
         # Deserialize objects back into Pydantic models
         # The preprocess method in Transform will handle these already-parsed objects
         results = asyncio.run(transform.execute(values=serialized_objects))
 
+        print(f"[TRANSFORM DEBUG] Execution completed. Results: {results}")
+        print(f"[TRANSFORM DEBUG] Results type: {type(results)}")
+        print(f"[TRANSFORM DEBUG] Results length: {len(results) if results else 0}")
+
         scan.status = EventLevel.COMPLETED
         scan.results = to_json_serializable(results)
         session.commit()
+
+        print(f"[TRANSFORM DEBUG] Final scan results: {scan.results}")
 
         return {"result": scan.results}
 

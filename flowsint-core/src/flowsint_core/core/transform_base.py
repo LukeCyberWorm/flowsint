@@ -419,10 +419,23 @@ class Transform(ABC):
                 self.sketch_id, {"message": f"Transform {self.name()} started."}
             )
         try:
+            print(f"[EXECUTE DEBUG] Starting async_init")
             await self.async_init()
+            print(f"[EXECUTE DEBUG] async_init completed")
+            
+            print(f"[EXECUTE DEBUG] Starting preprocess with values: {values}")
             preprocessed = self.preprocess(values)
+            print(f"[EXECUTE DEBUG] Preprocess completed. Result: {preprocessed}")
+            print(f"[EXECUTE DEBUG] Preprocessed length: {len(preprocessed)}")
+            
+            print(f"[EXECUTE DEBUG] Starting scan")
             results = await self.scan(preprocessed)
+            print(f"[EXECUTE DEBUG] Scan completed. Results: {results}")
+            print(f"[EXECUTE DEBUG] Results length: {len(results)}")
+            
+            print(f"[EXECUTE DEBUG] Starting postprocess")
             processed = self.postprocess(results, preprocessed)
+            print(f"[EXECUTE DEBUG] Postprocess completed. Processed: {processed}")
 
             # Flush any pending batch operations
             self._graph_service.flush()
@@ -435,6 +448,10 @@ class Transform(ABC):
             return processed
 
         except Exception as e:
+            print(f"[EXECUTE ERROR] Exception occurred: {type(e).__name__}: {str(e)}")
+            import traceback
+            print(f"[EXECUTE ERROR] Traceback: {traceback.format_exc()}")
+            
             if self.name() != "transform_orchestrator":
                 Logger.error(
                     self.sketch_id,

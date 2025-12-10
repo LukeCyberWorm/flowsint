@@ -81,6 +81,11 @@ async def launch_transform(
         # The transform's preprocess() will handle Pydantic validation
         cleaned_nodes = [clean_neo4j_node_data(node_data) for node_data in nodes_data]
 
+        print(f"[LAUNCH DEBUG] Transform: {transform_name}")
+        print(f"[LAUNCH DEBUG] Raw nodes: {nodes_data}")
+        print(f"[LAUNCH DEBUG] Cleaned nodes: {cleaned_nodes}")
+        print(f"[LAUNCH DEBUG] Sketch ID: {payload.sketch_id}")
+
         task = celery.send_task(
             "run_transform",
             args=[

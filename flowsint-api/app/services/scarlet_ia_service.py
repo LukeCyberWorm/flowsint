@@ -85,6 +85,10 @@ class ScarletIAService:
         data: {"type": "sources", "sources": [...]}
         """
         
+        print(f"[SCARLET-IA DEBUG] Processing message for user {user_id}")
+        print(f"[SCARLET-IA DEBUG] Investigation ID: {investigation_id}")
+        print(f"[SCARLET-IA DEBUG] Messages count: {len(messages)}")
+        
         # Convert messages to OpenAI format
         openai_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         
@@ -94,6 +98,7 @@ class ScarletIAService:
                 text_parts = [p.get("text", "") for p in msg.get("parts", []) if p.get("type") == "text"]
                 content = " ".join(text_parts) if text_parts else msg.get("content", "")
                 openai_messages.append({"role": "user", "content": content})
+                print(f"[SCARLET-IA DEBUG] User message: {content[:100]}...")
             elif msg["role"] == "assistant":
                 # Extract text from parts
                 text_parts = [p.get("text", "") for p in msg.get("parts", []) if p.get("type") == "text"]
@@ -103,12 +108,15 @@ class ScarletIAService:
         
         try:
             # Send step-start event
+            print(f"[SCARLET-IA DEBUG] Sending step-start event")
             yield f"data: {json.dumps({'type': 'step-start'})}\n\n"
             
             # Get OpenAI client
+            print(f"[SCARLET-IA DEBUG] Getting OpenAI client")
             client = self._get_client()
             
             # Stream response from OpenAI
+            print(f"[SCARLET-IA DEBUG] Creating completion stream with model: {self.model}")
             full_response = ""
             stream = await client.chat.completions.create(
                 model=self.model,
@@ -118,6 +126,7 @@ class ScarletIAService:
                 max_tokens=4096
             )
             
+            print(f"[SCARLET-IA DEBUG] Starting to stream response")
             async for chunk in stream:
                 if chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content

@@ -100,6 +100,7 @@ class CryptoWalletAddressToTransactions(Transform):
         transactions = []
         """Get transactions for a wallet address."""
         params = {
+            "chainid": 1,  # Ethereum mainnet
             "module": "account",
             "action": "txlist",
             "address": address,
@@ -110,26 +111,36 @@ class CryptoWalletAddressToTransactions(Transform):
             "sort": "asc",
             "apikey": api_key,
         }
+        print(f"[_GET_TRANSACTIONS DEBUG] Request params: {params}")
         try:
+            print(f"[_GET_TRANSACTIONS DEBUG] Making request to {api_url}")
             response = requests.get(api_url, params=params)
+            print(f"[_GET_TRANSACTIONS DEBUG] Response status: {response.status_code}")
 
             # Raise an exception for HTTP errors (4xx or 5xx status codes)
             response.raise_for_status()
 
         except requests.exceptions.ConnectionError as e:
+            print(f"[_GET_TRANSACTIONS ERROR] Connection error: {e}")
             raise ValueError(
                 f"An error occurred connecting to {api_url}: Connection failed - {str(e)}"
             )
         except requests.exceptions.Timeout as e:
+            print(f"[_GET_TRANSACTIONS ERROR] Timeout: {e}")
             raise ValueError(
                 f"An error occurred fetching {api_url}: Request timeout - {str(e)}"
             )
         except requests.exceptions.RequestException as e:
+            print(f"[_GET_TRANSACTIONS ERROR] Request exception: {e}")
             raise ValueError(f"An error occurred fetching {api_url}: {str(e)}")
 
         try:
             data = response.json()
+            print(f"[_GET_TRANSACTIONS DEBUG] Response JSON: {data}")
+            print(f"[_GET_TRANSACTIONS DEBUG] Response JSON status: {data.get('status')}")
+            print(f"[_GET_TRANSACTIONS DEBUG] Response JSON message: {data.get('message')}")
         except requests.exceptions.JSONDecodeError as e:
+            print(f"[_GET_TRANSACTIONS ERROR] JSON decode error: {e}")
             raise ValueError(
                 f"An error occurred fetching {api_url}: Invalid JSON response - {str(e)}"
             )
@@ -137,9 +148,11 @@ class CryptoWalletAddressToTransactions(Transform):
         # Check if the API returned an error
         if data.get("status") != "1":
             error_message = data.get("message", "Unknown API error")
+            print(f"[_GET_TRANSACTIONS ERROR] API error: {error_message}")
             raise ValueError(f"An error occurred fetching {api_url}: {error_message}")
 
         results = data.get("result", [])
+        print(f"[_GET_TRANSACTIONS DEBUG] Got {len(results)} transactions from API")
         for tx in results:
             # Properly determine source and target based on transaction data
             source_address = tx["from"]
@@ -174,18 +187,24 @@ class CryptoWalletAddressToTransactions(Transform):
         return transactions
 
     def postprocess(self, results: List[OutputType], original_input: List[InputType]) -> List[OutputType]:
+        print(f"[POSTPROCESS DEBUG] Neo4j connection present: {bool(self.neo4j_conn)}")
+        print(f"[POSTPROCESS DEBUG] Results type: {type(results)}")
+        print(f"[POSTPROCESS DEBUG] Results length: {len(results)}")
         if not self.neo4j_conn:
             return results
 
         for transactions in results:
+            print(f"[POSTPROCESS DEBUG] Processing {len(transactions)} transactions")
             for tx in transactions:
+                print(f"[POSTPROCESS DEBUG] Creating nodes for tx: {tx.hash}")
                 # Create or update both wallet nodes
                 self.create_node(tx.source)
-                self.create_node(tx.target.address)
+                self.create_node(tx.target)
+                print(f"[POSTPROCESS DEBUG] Nodes created, creating edge")
                 # Create transaction as an edge between wallets (keeping complex query for transaction properties)
                 tx_query = """
-                MATCH (source:cryptowallet {wallet: $source})
-                MATCH (target:cryptowallet {wallet: $target})
+                MATCH (source:cryptowallet {address: $source})
+                MATCH (target:cryptowallet {address: $target})
                 MERGE (source)-[tx:TRANSACTION {hash: $hash}]->(target)
                 SET tx.value = $value,
                     tx.timestamp = $timestamp,
@@ -204,6 +223,7 @@ class CryptoWalletAddressToTransactions(Transform):
                     tx.caption = $hash,
                     tx.type = "transaction"
                 """
+                print(f"[POSTPROCESS DEBUG] Executing query for hash: {tx.hash}")
                 self.neo4j_conn.query(
                     tx_query,
                     {
