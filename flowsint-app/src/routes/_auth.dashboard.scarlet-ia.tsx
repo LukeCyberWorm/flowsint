@@ -4,7 +4,7 @@ import {
   Sparkles, Loader2, FolderOpen, MessageSquare, 
   ChevronRight, Search, Users, Globe, FileSearch,
   Workflow, Database, AlertCircle, CheckCircle2,
-  Clock, Eye, PlusCircle, X
+  Clock, Eye, PlusCircle, X, History, Plus
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,24 @@ interface Note {
   tags: string[]
 }
 
+interface ChatSession {
+  id: string
+  title: string
+  created_at: Date
+  last_message_at: Date
+  message_count: number
+  investigation_id?: string
+}
+
+interface SavedDocument {
+  id: string
+  title: string
+  content: string
+  type: 'note' | 'evidence' | 'report'
+  created_at: Date
+  chat_id: string
+}
+
 interface Investigation {
   id: string
   name: string
@@ -70,7 +88,7 @@ const TOOLS_AVAILABLE = [
 ]
 
 function ScarletIAPage() {
-  const [chatId] = useState(() => {
+  const [chatId, setChatId] = useState(() => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     return Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
   })
@@ -88,6 +106,9 @@ function ScarletIAPage() {
   const [notes, setNotes] = useState<Note[]>([])
   const [currentNote, setCurrentNote] = useState('')
   const [activeTab, setActiveTab] = useState('chat')
+  const [showHistory, setShowHistory] = useState(false)
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+  const [savedDocuments, setSavedDocuments] = useState<SavedDocument[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Buscar casos disponíveis
@@ -104,8 +125,90 @@ function ScarletIAPage() {
     scrollToBottom()
   }, [messages])
 
+  // Carregar chat sessions do localStorage
+  useEffect(() => {
+    const savedSessions = localStorage.getItem('scarlet-ia-sessions')
+    if (savedSessions) {
+      const sessions = JSON.parse(savedSessions)
+      setChatSessions(sessions.map((s: any) => ({
+        ...s,
+        created_at: new Date(s.created_at),
+        last_message_at: new Date(s.last_message_at)
+      })))
+    }
+  }, [])
+
+  // Salvar chat atual quando houver mudanças
+  useEffect(() => {
+    if (messages.length > 1) {
+      const currentSession: ChatSession = {
+        id: chatId,
+        title: messages.find(m => m.role === 'user')?.content.slice(0, 50) || 'Novo Chat',
+        created_at: new Date(),
+        last_message_at: new Date(),
+        message_count: messages.length,
+        investigation_id: selectedCase
+      }
+
+      setChatSessions(prev => {
+        const updated = prev.filter(s => s.id !== chatId)
+        const newSessions = [currentSession, ...updated].slice(0, 50)
+        localStorage.setItem('scarlet-ia-sessions', JSON.stringify(newSessions))
+        return newSessions
+      })
+    }
+  }, [messages, chatId, selectedCase])
+
+  const handleNewChat = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const newChatId = Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    
+    setChatId(newChatId)
+    setMessages([{
+      id: '1',
+      role: 'system',
+      content: 'Olá! Sou a Scarlet-IA, sua assistente de investigação OSINT. Tenho acesso completo a todas as ferramentas do sistema. Como posso ajudá-lo hoje?',
+      timestamp: new Date(),
+    }])
+    setShowHistory(false)
+  }
+
+  const handleLoadSession = (sessionId: string) => {
+    const savedMessages = localStorage.getItem(`scarlet-ia-chat-${sessionId}`)
+    if (savedMessages) {
+      const msgs = JSON.parse(savedMessages)
+      setChatId(sessionId)
+      setMessages(msgs.map((m: any) => ({
+        ...m,
+        timestamp: new Date(m.timestamp)
+      })))
+      setShowHistory(false)
+    }
+  }
+
+  const handleSaveDocument = (content: string, title: string, type: 'note' | 'evidence' | 'report') => {
+    const doc: SavedDocument = {
+      id: Date.now().toString(),
+      title,
+      content,
+      type,
+      created_at: new Date(),
+      chat_id: chatId
+    }
+    
+    setSavedDocuments(prev => {
+      const updated = [...prev, doc]
+      localStorage.setItem(`scarlet-ia-docs-${chatId}`, JSON.stringify(updated))
+      return updated
+    })
+  }
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isProcessing) return
+    console.log('[ScarletIA Component] handleSendMessage called', { inputMessage, isProcessing })
+    if (!inputMessage.trim() || isProcessing) {
+      console.log('[ScarletIA Component] Blocked: empty message or processing')
+      return
+    }
 
     const userMessageId = Date.now().toString()
     const userMessage: Message = {
@@ -118,6 +221,9 @@ function ScarletIAPage() {
     setMessages(prev => [...prev, userMessage])
     setInputMessage('')
     setIsProcessing(true)
+
+    // Salvar mensagens no localStorage
+    localStorage.setItem(`scarlet-ia-chat-${chatId}`, JSON.stringify([...messages, userMessage]))
 
     // Criar mensagem da IA que será populada com streaming
     const aiMessageId = (Date.now() + 1).toString()
@@ -149,6 +255,7 @@ function ScarletIAPage() {
     })
 
     try {
+      console.log('[ScarletIA Component] Calling sendMessageStream with:', { chatId, messagesCount: apiMessages.length, selectedCase })
       await scarletIAService.sendMessageStream(
         chatId,
         apiMessages,
@@ -224,7 +331,7 @@ function ScarletIAPage() {
   }
 
   return (
-    <div className="h-full w-full flex flex-col bg-background">
+    <div className="h-full w-full flex flex-col bg-background relative">
       {/* Header */}
       <div className="border-b bg-card px-6 py-4">
         <div className="flex items-center justify-between">
@@ -239,6 +346,15 @@ function ScarletIAPage() {
                   <Sparkles className="w-3 h-3 mr-1" />
                   ADMIN
                 </Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="ml-2"
+                  title="Histórico de Chats"
+                >
+                  <History className="w-5 h-5" />
+                </Button>
               </div>
               <p className="text-xs text-muted-foreground">Assistente OSINT com acesso completo ao sistema</p>
             </div>
@@ -246,6 +362,11 @@ function ScarletIAPage() {
 
           {/* Case Selector */}
           <div className="flex items-center gap-3">
+            <Button onClick={handleNewChat} variant="outline" size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Chat
+            </Button>
+            
             <div className="flex items-center gap-2">
               <FolderOpen className="w-4 h-4 text-muted-foreground" />
               <Select value={selectedCase} onValueChange={setSelectedCase}>
@@ -276,7 +397,7 @@ function ScarletIAPage() {
 
         {/* Tools Bar */}
         <div className="flex items-center gap-2 mt-4 flex-wrap">
-          <span className="text-xs text-muted-foreground mr-2">Ferramentas disponíveis:</span>
+          <span className="text-xs text-muted-foreground mr-2">Ferramentas RSL + Kali Linux disponíveis:</span>
           {TOOLS_AVAILABLE.map((tool) => {
             const Icon = tool.icon
             return (
@@ -289,12 +410,76 @@ function ScarletIAPage() {
         </div>
       </div>
 
+      {/* History Sidebar */}
+      {showHistory && (
+        <div className="fixed right-0 top-0 h-full w-96 bg-card border-l shadow-lg z-50 flex flex-col">
+          <div className="p-4 border-b flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <History className="w-5 h-5" />
+              <h2 className="text-lg font-semibold">Histórico de Chats</h2>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setShowHistory(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-2">
+              {chatSessions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Nenhum chat salvo ainda</p>
+                </div>
+              ) : (
+                chatSessions.map((session) => (
+                  <Card 
+                    key={session.id} 
+                    className="cursor-pointer hover:bg-accent transition-colors"
+                    onClick={() => handleLoadSession(session.id)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium truncate">{session.title}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Clock className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              {format(session.last_message_at, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <MessageSquare className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              {session.message_count} mensagens
+                            </span>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="shrink-0">
+                          {session.id === chatId ? 'Atual' : 'Salvo'}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+          
+          <div className="p-4 border-t">
+            <Button onClick={handleNewChat} className="w-full">
+              <Plus className="w-4 h-4 mr-2" />
+              Iniciar Novo Chat
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Chat Section */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="space-y-4 max-w-4xl mx-auto">{}
+            <div className="space-y-4 max-w-4xl mx-auto">
               {messages.map((message) => (
                 <div
                   key={message.id}

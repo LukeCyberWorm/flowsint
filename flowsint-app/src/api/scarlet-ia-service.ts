@@ -1,4 +1,5 @@
 import { fetchWithAuth } from './api'
+import { useAuthStore } from '@/stores/auth-store'
 
 export interface MessagePart {
   type: 'text' | 'step-start' | 'sources' | 'error'
@@ -57,7 +58,11 @@ export const scarletIAService = {
     onError: (error: string) => void,
     investigationId?: string
   ): Promise<void> => {
-    const token = localStorage.getItem('token')
+    const token = useAuthStore.getState().token
+    const API_URL = window.location.origin
+    
+    console.log('[Scarlet-IA] Sending message to:', `${API_URL}/api/scarlet-ia/chat`)
+    console.log('[Scarlet-IA] Token present:', !!token)
     
     const request: ChatRequest = {
       id: chatId,
@@ -67,7 +72,7 @@ export const scarletIAService = {
     }
 
     try {
-      const response = await fetch('/api/scarlet-ia/chat', {
+      const response = await fetch(`${API_URL}/api/scarlet-ia/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +81,18 @@ export const scarletIAService = {
         body: JSON.stringify(request)
       })
 
+      console.log('[Scarlet-IA] Response status:', response.status)
+
+      if (response.status === 401) {
+        console.error('[Scarlet-IA] Unauthorized - logging out')
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+        throw new Error('Session expired, login again.')
+      }
+
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('[Scarlet-IA] Error response:', errorText)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
@@ -88,30 +104,37 @@ export const scarletIAService = {
       }
 
       let buffer = ''
+      let chunkCount = 0
 
       while (true) {
         const { done, value } = await reader.read()
         
         if (done) {
+          console.log('[Scarlet-IA] Stream done, total chunks:', chunkCount)
           onComplete()
           break
         }
 
         buffer += decoder.decode(value, { stream: true })
+        console.log('[Scarlet-IA] Buffer length:', buffer.length, 'content sample:', buffer.substring(0, 100))
         const lines = buffer.split('\n\n')
         buffer = lines.pop() || ''
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const data = line.slice(6)
+            console.log('[Scarlet-IA] Received data:', data.substring(0, 100))
             
             if (data === '[DONE]') {
+              console.log('[Scarlet-IA] Received [DONE] signal')
               onComplete()
               return
             }
 
             try {
               const chunk = JSON.parse(data) as MessagePart
+              console.log('[Scarlet-IA] Parsed chunk:', chunk.type, chunk.text?.substring(0, 50))
+              chunkCount++
               onChunk(chunk)
             } catch (e) {
               console.error('Failed to parse SSE chunk:', e, data)
