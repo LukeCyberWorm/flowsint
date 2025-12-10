@@ -10,6 +10,7 @@ from flowsint_transforms.domain.to_website import DomainToWebsiteTransform
 from flowsint_transforms.domain.to_root_domain import DomainToRootDomain
 from flowsint_transforms.domain.to_asn import DomainToAsnTransform
 from flowsint_transforms.domain.to_history import DomainToHistoryTransform
+from flowsint_transforms.domain.to_dns import DomainToDNSTransform
 
 # IP-related transforms
 from flowsint_transforms.email.to_domains import EmailToDomainsTransform
@@ -18,6 +19,7 @@ from flowsint_transforms.ip.to_domain import ReverseResolveTransform
 from flowsint_transforms.ip.to_infos import IpToInfosTransform
 from flowsint_transforms.ip.to_asn import IpToAsnTransform
 from flowsint_transforms.ip.to_ports import IpToPortsTransform
+from flowsint_transforms.ip.to_geolocation import IPToGeolocationTransform
 
 # ASN-related transforms
 from flowsint_transforms.asn.to_cidrs import AsnToCidrsTransform
@@ -28,10 +30,17 @@ from flowsint_transforms.cidr.to_ips import CidrToIpsTransform
 # Social media transforms
 from flowsint_transforms.organization.to_domains import OrgToDomainsTransform
 from flowsint_transforms.social.to_maigret import MaigretTransform
+from flowsint_transforms.social.username_search import UsernameSearchTransform
 
 # Organization-related transforms
 from flowsint_transforms.organization.to_asn import OrgToAsnTransform
 from flowsint_transforms.organization.to_infos import OrgToInfosTransform
+
+# Brazilian Portal da Transparência transforms
+from flowsint_transforms.organization.pt_sanctions import CNPJToSanctionsTransform
+from flowsint_transforms.organization.pt_agreements import CNPJToAgreementsTransform
+from flowsint_transforms.individual.pt_servant_cpf import CPFToPublicServantTransform
+from flowsint_transforms.individual.pt_servant_name import NameToPublicServantTransform
 
 # Cryptocurrency transforms
 from flowsint_transforms.crypto.to_transactions import (
@@ -48,7 +57,8 @@ from flowsint_transforms.website.to_webtrackers import WebsiteToWebtrackersTrans
 
 # Email-related transforms
 from flowsint_transforms.email.to_gravatar import EmailToGravatarTransform
-from flowsint_transforms.email.to_leaks import EmailToBreachesTransform
+from flowsint_transforms.email.to_leaks import EmailToBreachesTransform as EmailToLeaksTransform
+from flowsint_transforms.email.to_breaches import EmailToBreachesTransform as EmailToDeepfindBreachesTransform
 
 # Phone-related transforms
 
@@ -156,11 +166,13 @@ TransformRegistry.register(DomainToWebsiteTransform)
 TransformRegistry.register(DomainToRootDomain)
 TransformRegistry.register(DomainToAsnTransform)
 TransformRegistry.register(DomainToHistoryTransform)
+TransformRegistry.register(DomainToDNSTransform)
 
 # IP-related transforms
 TransformRegistry.register(IpToInfosTransform)
 TransformRegistry.register(IpToAsnTransform)
 TransformRegistry.register(IpToPortsTransform)
+TransformRegistry.register(IPToGeolocationTransform)
 
 # ASN-related transforms
 TransformRegistry.register(AsnToCidrsTransform)
@@ -170,11 +182,15 @@ TransformRegistry.register(CidrToIpsTransform)
 
 # Social media transforms
 TransformRegistry.register(MaigretTransform)
+TransformRegistry.register(UsernameSearchTransform)
 
 # Organization-related transforms
 TransformRegistry.register(OrgToAsnTransform)
 TransformRegistry.register(OrgToInfosTransform)
 TransformRegistry.register(OrgToDomainsTransform)
+TransformRegistry.register(CNPJToSanctionsTransform)
+TransformRegistry.register(CNPJToAgreementsTransform)
+
 # Cryptocurrency transforms
 TransformRegistry.register(CryptoWalletAddressToTransactions)
 TransformRegistry.register(CryptoWalletAddressToNFTs)
@@ -188,12 +204,15 @@ TransformRegistry.register(WebsiteToText)
 
 # Email-related transforms
 TransformRegistry.register(EmailToGravatarTransform)
-TransformRegistry.register(EmailToBreachesTransform)
+TransformRegistry.register(EmailToLeaksTransform)
+TransformRegistry.register(EmailToDeepfindBreachesTransform)
 TransformRegistry.register(EmailToDomainsTransform)
 
 # Individual-related transforms
 TransformRegistry.register(IndividualToOrgTransform)
 TransformRegistry.register(IndividualToDomainsTransform)
+TransformRegistry.register(CPFToPublicServantTransform)
+TransformRegistry.register(NameToPublicServantTransform)
 
 # Integration transforms
 TransformRegistry.register(N8nConnector)

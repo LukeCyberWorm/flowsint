@@ -22,11 +22,29 @@ class Ip(FlowsintType):
     country: Optional[str] = Field(
         None, description="Country where the IP is located", title="Country"
     )
+    country_code: Optional[str] = Field(
+        None, description="Country code (ISO)", title="Country Code"
+    )
+    region: Optional[str] = Field(
+        None, description="Region/State", title="Region"
+    )
     city: Optional[str] = Field(
         None, description="City where the IP is located", title="City"
     )
+    zip_code: Optional[str] = Field(
+        None, description="ZIP/Postal code", title="ZIP Code"
+    )
+    timezone: Optional[str] = Field(
+        None, description="Timezone", title="Timezone"
+    )
     isp: Optional[str] = Field(
         None, description="Internet Service Provider", title="ISP"
+    )
+    organization: Optional[str] = Field(
+        None, description="Organization", title="Organization"
+    )
+    asn: Optional[str] = Field(
+        None, description="Autonomous System Number", title="ASN"
     )
 
     @field_validator("address")

@@ -370,6 +370,80 @@ class Organization(FlowsintType):
     complements_type_siae: Optional[Any] = Field(
         None, description="Complements SIAE type", title="SIAE Type"
     )
+    
+    # Brazilian Portal da Transparência fields
+    cnpj: Optional[str] = Field(
+        None, description="Brazilian CNPJ number", title="CNPJ"
+    )
+    sanctioned: Optional[bool] = Field(
+        None, description="Is sanctioned by government", title="Sanctioned"
+    )
+    sanction_type: Optional[str] = Field(
+        None, description="Type of sanction", title="Sanction Type"
+    )
+    sanction_date: Optional[str] = Field(
+        None, description="Sanction publication date", title="Sanction Date"
+    )
+    sanction_organ: Optional[str] = Field(
+        None, description="Organ that applied sanction", title="Sanction Organ"
+    )
+    sanction_reason: Optional[str] = Field(
+        None, description="Legal foundation for sanction", title="Sanction Reason"
+    )
+    sanction_value: Optional[float] = Field(
+        None, description="Sanction fine value", title="Sanction Value"
+    )
+    sanction_start_date: Optional[str] = Field(
+        None, description="Sanction start date", title="Sanction Start"
+    )
+    sanction_end_date: Optional[str] = Field(
+        None, description="Sanction end date", title="Sanction End"
+    )
+    has_government_contracts: Optional[bool] = Field(
+        None, description="Has contracts with government", title="Has Government Contracts"
+    )
+    total_contracts: Optional[int] = Field(
+        None, description="Total number of government contracts", title="Total Contracts"
+    )
+    total_contract_value: Optional[float] = Field(
+        None, description="Total value of all contracts", title="Total Contract Value"
+    )
+    total_government_transfer: Optional[float] = Field(
+        None, description="Total transferred by government", title="Total Government Transfer"
+    )
+    latest_contract_number: Optional[str] = Field(
+        None, description="Latest contract number", title="Latest Contract Number"
+    )
+    latest_contract_object: Optional[str] = Field(
+        None, description="Latest contract object/purpose", title="Latest Contract Object"
+    )
+    latest_contract_date: Optional[str] = Field(
+        None, description="Latest contract signature date", title="Latest Contract Date"
+    )
+    latest_contract_status: Optional[str] = Field(
+        None, description="Latest contract status", title="Latest Contract Status"
+    )
+    latest_contract_organ: Optional[str] = Field(
+        None, description="Latest contract government organ", title="Latest Contract Organ"
+    )
+    latest_contract_value: Optional[float] = Field(
+        None, description="Latest contract value", title="Latest Contract Value"
+    )
+    latest_contract_start: Optional[str] = Field(
+        None, description="Latest contract start date", title="Latest Contract Start"
+    )
+    latest_contract_end: Optional[str] = Field(
+        None, description="Latest contract end date", title="Latest Contract End"
+    )
+    municipality: Optional[str] = Field(
+        None, description="Municipality", title="Municipality"
+    )
+    uf: Optional[str] = Field(
+        None, description="Brazilian state (UF)", title="UF"
+    )
+    contracts_summary: Optional[List[dict]] = Field(
+        None, description="Summary of all contracts", title="Contracts Summary"
+    )
 
     @model_validator(mode='after')
     def compute_label(self) -> Self:

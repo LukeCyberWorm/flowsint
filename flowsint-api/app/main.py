@@ -36,6 +36,11 @@ origins = [
 # Middleware to force HTTPS in redirects
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
+        # Trust proxy headers
+        forwarded_proto = request.headers.get("X-Forwarded-Proto")
+        if forwarded_proto:
+            request.scope["scheme"] = forwarded_proto
+        
         response = await call_next(request)
         # If it's a redirect response, ensure it uses HTTPS
         if response.status_code in (301, 302, 303, 307, 308):
@@ -45,7 +50,7 @@ class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
         return response
 
 
-app = FastAPI()
+app = FastAPI(root_path="", openapi_url="/api/openapi.json")
 neo4j_connection = Neo4jConnection(URI, USERNAME, PASSWORD)
 
 app.add_middleware(HTTPSRedirectMiddleware)

@@ -20,6 +20,8 @@ class SocialAccount(FlowsintType):
     bio: Optional[str] = Field(None, description="Biography or description text", title="Bio")
     location: Optional[str] = Field(None, description="Location specified in the profile", title="Location")
     platform: Optional[str] = Field(None, description="Platform/Website URL from the profile", title="Platform")
+    status: Optional[str] = Field(None, description="Status of the account (found/not_found)", title="Status")
+    http_status: Optional[int] = Field(None, description="HTTP status code from profile check", title="HTTP Status")
     created_at: Optional[str] = Field(None, description="Account creation date", title="Created at")
     followers_count: Optional[int] = Field(None, description="Number of followers", title="Followers count")
     following_count: Optional[int] = Field(None, description="Number of accounts being followed", title="Following count")

@@ -1,4 +1,4 @@
-from typing import Optional, Self
+from typing import Optional, Self, Dict, Any
 from pydantic import Field, field_validator, model_validator
 from urllib.parse import urlparse
 import re
@@ -16,6 +16,15 @@ class Domain(FlowsintType):
     )
     root: Optional[bool] = Field(
         True, description="Is root or not", title="Is Root Domain"
+    )
+    parent_domain: Optional[str] = Field(
+        None, description="Parent domain (for subdomains)", title="Parent Domain"
+    )
+    whois_data: Optional[Dict[str, Any]] = Field(
+        None, description="WHOIS registration data", title="WHOIS Data"
+    )
+    dns_records: Optional[Dict[str, Any]] = Field(
+        None, description="DNS records (A, AAAA, MX, NS, TXT, SOA)", title="DNS Records"
     )
 
     @field_validator("domain")

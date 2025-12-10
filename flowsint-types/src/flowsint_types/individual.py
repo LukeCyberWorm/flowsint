@@ -310,6 +310,86 @@ class Individual(FlowsintType):
     last_updated: Optional[str] = Field(
         None, description="Last update timestamp", title="Last Updated"
     )
+    
+    # Brazilian Portal da Transparência fields (Public Servant)
+    cpf: Optional[str] = Field(
+        None, description="Brazilian CPF number", title="CPF"
+    )
+    is_public_servant: Optional[bool] = Field(
+        None, description="Is a public servant", title="Is Public Servant"
+    )
+    organization_code: Optional[str] = Field(
+        None, description="Organization code where employed", title="Organization Code"
+    )
+    organization_name: Optional[str] = Field(
+        None, description="Organization name where employed", title="Organization Name"
+    )
+    upag_lotacao: Optional[str] = Field(
+        None, description="UPAG lotação", title="UPAG Lotação"
+    )
+    work_location: Optional[str] = Field(
+        None, description="Work location", title="Work Location"
+    )
+    job_role: Optional[str] = Field(
+        None, description="Job role/function", title="Job Role"
+    )
+    job_code: Optional[str] = Field(
+        None, description="Job code", title="Job Code"
+    )
+    job_class: Optional[str] = Field(
+        None, description="Job class", title="Job Class"
+    )
+    job_reference: Optional[str] = Field(
+        None, description="Job reference", title="Job Reference"
+    )
+    job_standard: Optional[str] = Field(
+        None, description="Job standard", title="Job Standard"
+    )
+    job_level: Optional[str] = Field(
+        None, description="Job level", title="Job Level"
+    )
+    employment_regime: Optional[str] = Field(
+        None, description="Employment regime/type", title="Employment Regime"
+    )
+    employment_status: Optional[str] = Field(
+        None, description="Employment status", title="Employment Status"
+    )
+    work_schedule: Optional[str] = Field(
+        None, description="Work schedule/hours", title="Work Schedule"
+    )
+    admission_date: Optional[str] = Field(
+        None, description="Admission date to position", title="Admission Date"
+    )
+    admission_public_service_date: Optional[str] = Field(
+        None, description="Admission date to public service", title="Public Service Admission Date"
+    )
+    diploma_date: Optional[str] = Field(
+        None, description="Diploma date", title="Diploma Date"
+    )
+    base_salary: Optional[float] = Field(
+        None, description="Base salary", title="Base Salary"
+    )
+    gratification: Optional[float] = Field(
+        None, description="Gratification amount", title="Gratification"
+    )
+    bonus: Optional[float] = Field(
+        None, description="Bonus amount", title="Bonus"
+    )
+    total_compensation: Optional[float] = Field(
+        None, description="Total compensation after deductions", title="Total Compensation"
+    )
+    education_level: Optional[str] = Field(
+        None, description="Education level", title="Education Level"
+    )
+    education_area: Optional[str] = Field(
+        None, description="Education area/field", title="Education Area"
+    )
+    servant_type: Optional[str] = Field(
+        None, description="Type of public servant", title="Servant Type"
+    )
+    retirement_situation: Optional[str] = Field(
+        None, description="Retirement situation", title="Retirement Situation"
+    )
 
     @field_validator('email_addresses', mode='before')
     @classmethod

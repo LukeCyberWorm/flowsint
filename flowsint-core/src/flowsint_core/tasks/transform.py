@@ -83,6 +83,16 @@ def run_transform(
         print(f"[TRANSFORM DEBUG] Results type: {type(results)}")
         print(f"[TRANSFORM DEBUG] Results length: {len(results) if results else 0}")
 
+        # Check if results are empty and log warning
+        if not results or (isinstance(results, list) and len(results) == 0):
+            warning_msg = f"Transform '{transform_name}' completed but returned no results."
+            if len(serialized_objects) > 0:
+                warning_msg += f" Input had {len(serialized_objects)} items but produced 0 outputs."
+                warning_msg += " This may indicate: 1) Missing API keys in Vault, 2) External API unavailable, 3) No data found for the input."
+            
+            Logger.warn(sketch_id, {"message": warning_msg})
+            print(f"[TRANSFORM WARNING] {warning_msg}")
+
         scan.status = EventLevel.COMPLETED
         scan.results = to_json_serializable(results)
         session.commit()
