@@ -3,9 +3,8 @@ SQLAlchemy models for Scarlet-IA chat and notes
 """
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Integer
+from sqlalchemy import Column, String, DateTime, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.orm import relationship
 from app.models.base import Base
 
 
@@ -13,8 +12,8 @@ class ScarletIAMessage(Base):
     __tablename__ = "scarlet_ia_messages"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    investigation_id = Column(UUID(as_uuid=True), ForeignKey("investigations.id", ondelete="CASCADE"), nullable=True, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    investigation_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # Optional link to investigation
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)  # User who created the message
     chat_id = Column(String(50), nullable=False, index=True)  # Client-generated chat session ID
     message_id = Column(String(50), nullable=False, unique=True)  # Client-generated message ID
     role = Column(String(20), nullable=False)  # 'user', 'assistant', 'system'
@@ -25,10 +24,6 @@ class ScarletIAMessage(Base):
     attachments = Column(JSONB, nullable=True)  # Array of attachments
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
-    # Relationships
-    investigation = relationship("Investigation", back_populates="scarlet_ia_messages")
-    user = relationship("Profile", back_populates="scarlet_ia_messages")
-
     def __repr__(self):
         return f"<ScarletIAMessage {self.id} role={self.role} chat_id={self.chat_id}>"
 
@@ -37,16 +32,12 @@ class ScarletIANote(Base):
     __tablename__ = "scarlet_ia_notes"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    investigation_id = Column(UUID(as_uuid=True), ForeignKey("investigations.id", ondelete="CASCADE"), nullable=True, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    investigation_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # Optional link to investigation
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)  # User who created the note
     content = Column(Text, nullable=False)
     tags = Column(JSONB, nullable=True)  # Array of tag strings
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    # Relationships
-    investigation = relationship("Investigation", back_populates="scarlet_ia_notes")
-    user = relationship("Profile", back_populates="scarlet_ia_notes")
 
     def __repr__(self):
         return f"<ScarletIANote {self.id} investigation_id={self.investigation_id}>"
@@ -57,16 +48,12 @@ class ScarletIAChatSession(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     chat_id = Column(String(50), nullable=False, unique=True, index=True)  # Client-generated chat session ID
-    investigation_id = Column(UUID(as_uuid=True), ForeignKey("investigations.id", ondelete="SET NULL"), nullable=True, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    investigation_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # Optional link to investigation
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)  # User who owns the chat
     title = Column(String(500), nullable=True)  # Auto-generated from first message
     message_count = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    # Relationships
-    investigation = relationship("Investigation", back_populates="scarlet_ia_chat_sessions")
-    user = relationship("Profile", back_populates="scarlet_ia_chat_sessions")
 
     def __repr__(self):
         return f"<ScarletIAChatSession {self.chat_id} user_id={self.user_id}>"

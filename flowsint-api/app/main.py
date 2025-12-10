@@ -20,6 +20,7 @@ from app.api.routes import keys
 from app.api.routes import types
 from app.api.routes import custom_types
 from app.api.routes import face_recognition
+from app.api.routes import scarlet_ia
 
 load_dotenv()
 
@@ -78,3 +79,4 @@ app.include_router(keys.router, prefix="/api/keys", tags=["keys"])
 app.include_router(types.router, prefix="/api/types", tags=["types"])
 app.include_router(custom_types.router, prefix="/api/custom-types", tags=["custom-types"])
 app.include_router(face_recognition.router, prefix="/api/face-recognition", tags=["face-recognition"])
+app.include_router(scarlet_ia.router, prefix="/api/scarlet-ia", tags=["scarlet-ia"])

@@ -1,10 +1,23 @@
 import { fetchWithAuth } from './api'
 
-export interface AIMessage {
+export interface MessagePart {
+  type: 'text' | 'step-start' | 'sources' | 'error'
+  text?: string
+  state?: 'streaming' | 'done'
+}
+
+export interface ChatMessage {
+  id: string
   role: 'user' | 'assistant' | 'system'
-  content: string
-  tools_used?: string[]
-  attachments?: Array<{ type: string; data: any }>
+  parts: MessagePart[]
+  sources?: Array<{ title: string; url: string }>
+}
+
+export interface ChatRequest {
+  id: string  // chat_id
+  messages: ChatMessage[]
+  trigger: 'submit-message'
+  investigation_id?: string
 }
 
 export interface AIRequest {
@@ -28,14 +41,101 @@ export interface ReportRequest {
   include_analysis?: boolean
 }
 
+// Generate random ID similar to SkynetChat format
+const generateId = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  return Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
+
 export const scarletIAService = {
-  // Send message to AI
+  // Send message to AI with streaming support
+  sendMessageStream: async (
+    chatId: string,
+    messages: ChatMessage[],
+    onChunk: (chunk: MessagePart) => void,
+    onComplete: () => void,
+    onError: (error: string) => void,
+    investigationId?: string
+  ): Promise<void> => {
+    const token = localStorage.getItem('token')
+    
+    const request: ChatRequest = {
+      id: chatId,
+      messages,
+      trigger: 'submit-message',
+      investigation_id: investigationId
+    }
+
+    try {
+      const response = await fetch('/api/scarlet-ia/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(request)
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        throw new Error('Response body is not readable')
+      }
+
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (done) {
+          onComplete()
+          break
+        }
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            
+            if (data === '[DONE]') {
+              onComplete()
+              return
+            }
+
+            try {
+              const chunk = JSON.parse(data) as MessagePart
+              onChunk(chunk)
+            } catch (e) {
+              console.error('Failed to parse SSE chunk:', e, data)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Stream error:', error)
+      onError(error instanceof Error ? error.message : 'Unknown error')
+    }
+  },
+
+  // Legacy method for backwards compatibility
   sendMessage: async (request: AIRequest): Promise<AIResponse> => {
     return fetchWithAuth('/api/scarlet-ia/chat', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   },
+
+  // Generate new chat/message IDs
+  generateChatId: (): string => generateId(),
+  generateMessageId: (): string => generateId(),
 
   // Execute Kali Linux command via SSH
   executeKaliCommand: async (command: string, investigationId?: string): Promise<any> => {
