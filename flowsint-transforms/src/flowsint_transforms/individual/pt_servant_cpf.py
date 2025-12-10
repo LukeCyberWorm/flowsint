@@ -12,6 +12,18 @@ class CPFToPublicServantTransform(Transform):
     OutputType = Individual
 
     @classmethod
+    def get_params_schema(cls) -> List[Dict[str, Any]]:
+        """Declare required parameters for this transform"""
+        return [
+            {
+                "name": "PORTAL_TRANSPARENCIA_API_KEY",
+                "type": "vaultSecret",
+                "description": "API key do Portal da Transparência para buscar servidores públicos.",
+                "required": True,
+            },
+        ]
+
+    @classmethod
     def name(cls) -> str:
         return "cpf_to_public_servant"
 
@@ -44,13 +56,18 @@ class CPFToPublicServantTransform(Transform):
         for individual in data:
             try:
                 cpf_clean = individual.cpf.replace(".", "").replace("-", "")
-                url = f"https://api.portaldatransparencia.gov.br/api-de-dados/servidores?cpf={cpf_clean}"
+                url = f"https://api.portaldatransparencia.gov.br/api-de-dados/servidores?cpf={cpf_clean}&pagina=1"
                 headers = {"chave-api-dados": api_key}
+                
+                Logger.info(self.sketch_id, {"message": f"Calling API: {url[:80]}"})
                 response = requests.get(url, headers=headers, timeout=30)
+                
+                Logger.info(self.sketch_id, {"message": f"API Response Status: {response.status_code}"})
+                Logger.info(self.sketch_id, {"message": f"API Response Body: {response.text[:500]}"})
                 
                 if response.status_code == 200:
                     servants = response.json()
-                    if servants:
+                    if isinstance(servants, list) and servants:
                         servant_data = servants[0]
                         enriched_individual = Individual(
                             first_name=individual.first_name or "",
@@ -60,7 +77,9 @@ class CPFToPublicServantTransform(Transform):
                             public_servant_data=servant_data
                         )
                         results.append(enriched_individual)
-                        Logger.info(self.sketch_id, {"message": f"Found public servant data for CPF {individual.cpf}"})
+                        Logger.info(self.sketch_id, {"message": f"Found public servant data for CPF"})
+                else:
+                    Logger.error(self.sketch_id, {"message": f"API returned status {response.status_code}: {response.text[:200]}"})
             except Exception as e:
-                Logger.error(self.sketch_id, {"message": f"Error getting servant data for {individual.cpf}: {e}"})
+                Logger.error(self.sketch_id, {"message": f"Error getting servant data for CPF: {str(e)}"})
         return results

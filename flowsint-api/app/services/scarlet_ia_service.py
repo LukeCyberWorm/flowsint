@@ -225,8 +225,8 @@ class ScarletIAService:
                             },
                             "include_content": {
                                 "type": "boolean",
-                                "description": "Se true, extrai e retorna o conteúdo completo das páginas",
-                                "default": true
+                                "description": "Se True, extrai e retorna o conteúdo completo das páginas",
+                                "default": True
                             }
                         },
                         "required": ["query"]

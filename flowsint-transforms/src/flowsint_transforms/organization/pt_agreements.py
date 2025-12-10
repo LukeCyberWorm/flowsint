@@ -12,8 +12,20 @@ class CNPJToAgreementsTransform(Transform):
     OutputType = Organization
 
     @classmethod
+    def get_params_schema(cls) -> List[Dict[str, Any]]:
+        """Declare required parameters for this transform"""
+        return [
+            {
+                "name": "PORTAL_TRANSPARENCIA_API_KEY",
+                "type": "vaultSecret",
+                "description": "API key do Portal da Transparência para buscar convênios.",
+                "required": True,
+            },
+        ]
+
+    @classmethod
     def name(cls) -> str:
-        return "cnpj_to_agreements"
+        return "organization_to_agreements"
 
     @classmethod
     def category(cls) -> str:
