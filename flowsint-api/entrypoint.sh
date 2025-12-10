@@ -9,4 +9,4 @@ else
 fi
 
 echo "Starting application..."
-exec uvicorn flowsint_api.main:app --host 0.0.0.0 --port 5001 --reload
+exec uvicorn app.main:app --host 0.0.0.0 --port 5001

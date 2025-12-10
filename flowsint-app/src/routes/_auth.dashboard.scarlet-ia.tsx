@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { fetchWithAuth } from '@/api/api'
+import { scarletIAService, ChatMessage as APIChatMessage, MessagePart } from '@/api/scarlet-ia-service'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -69,6 +70,10 @@ const TOOLS_AVAILABLE = [
 ]
 
 function ScarletIAPage() {
+  const [chatId] = useState(() => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    return Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  })
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -102,8 +107,9 @@ function ScarletIAPage() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isProcessing) return
 
+    const userMessageId = Date.now().toString()
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: userMessageId,
       role: 'user',
       content: inputMessage,
       timestamp: new Date()
@@ -113,18 +119,79 @@ function ScarletIAPage() {
     setInputMessage('')
     setIsProcessing(true)
 
-    // Simular resposta da IA (aqui você integraria com sua API real)
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Entendi sua solicitação. Vou processar: "${inputMessage}"\n\nPosso usar as seguintes ferramentas para ajudá-lo:\n• Busca OSINT\n• Análise de dados\n• Criação de flows\n\nDeseja que eu prossiga?`,
-        timestamp: new Date(),
-        tools_used: ['osint_search', 'data_analysis']
-      }
-      setMessages(prev => [...prev, aiResponse])
+    // Criar mensagem da IA que será populada com streaming
+    const aiMessageId = (Date.now() + 1).toString()
+    const aiMessage: Message = {
+      id: aiMessageId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      tools_used: []
+    }
+    setMessages(prev => [...prev, aiMessage])
+
+    // Converter mensagens para formato da API
+    const apiMessages: APIChatMessage[] = messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({
+        id: m.id,
+        role: m.role,
+        parts: [{ type: 'text' as const, text: m.content }],
+        sources: []
+      }))
+    
+    // Adicionar mensagem do usuário
+    apiMessages.push({
+      id: userMessageId,
+      role: 'user',
+      parts: [{ type: 'text' as const, text: inputMessage }],
+      sources: []
+    })
+
+    try {
+      await scarletIAService.sendMessageStream(
+        chatId,
+        apiMessages,
+        (chunk: MessagePart) => {
+          // Atualizar mensagem com chunks de texto
+          if (chunk.type === 'text' && chunk.text) {
+            setMessages(prev => 
+              prev.map(m => 
+                m.id === aiMessageId 
+                  ? { ...m, content: m.content + chunk.text }
+                  : m
+              )
+            )
+          }
+        },
+        () => {
+          // Streaming completo
+          setIsProcessing(false)
+        },
+        (error: string) => {
+          console.error('Erro no streaming:', error)
+          setMessages(prev => 
+            prev.map(m => 
+              m.id === aiMessageId 
+                ? { ...m, content: `Erro ao processar mensagem: ${error}` }
+                : m
+            )
+          )
+          setIsProcessing(false)
+        },
+        selectedCase || undefined
+      )
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error)
+      setMessages(prev => 
+        prev.map(m => 
+          m.id === aiMessageId 
+            ? { ...m, content: 'Erro ao conectar com a IA. Por favor, tente novamente.' }
+            : m
+        )
+      )
       setIsProcessing(false)
-    }, 1500)
+    }
   }
 
   const handleSaveNote = () => {
@@ -226,8 +293,8 @@ function ScarletIAPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Chat Section */}
         <div className="flex-1 flex flex-col">
-          <ScrollArea className="flex-1 px-6 py-4">
-            <div className="space-y-4 max-w-4xl mx-auto">
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="space-y-4 max-w-4xl mx-auto">{}
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -284,7 +351,7 @@ function ScarletIAPage() {
               
               <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Input Area */}
           <div className="border-t bg-card p-4">
@@ -345,7 +412,7 @@ function ScarletIAPage() {
 
               <Separator />
 
-              <ScrollArea className="flex-1 mt-4">
+              <div className="flex-1 overflow-y-auto mt-4">
                 <div className="space-y-3">
                   {notes.length === 0 ? (
                     <div className="text-center py-8">
@@ -375,11 +442,11 @@ function ScarletIAPage() {
                     ))
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
 
             <TabsContent value="results" className="flex-1 flex flex-col p-4 mt-0">
-              <ScrollArea className="flex-1">
+              <div className="flex-1 overflow-y-auto">
                 <div className="space-y-3">
                   <Card>
                     <CardHeader className="pb-3">
@@ -423,7 +490,7 @@ function ScarletIAPage() {
                     </CardContent>
                   </Card>
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

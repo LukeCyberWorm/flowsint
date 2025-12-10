@@ -52,9 +52,12 @@ COPY flowsint-api /app/flowsint-api
 
 COPY --chmod=755 flowsint-api/entrypoint.sh /app/flowsint-api/entrypoint.sh
 
+# Fix Windows line endings
+RUN sed -i 's/\r$//' /app/flowsint-api/entrypoint.sh
+
 WORKDIR /app/flowsint-api
 
-RUN poetry install --only main
+RUN poetry lock && poetry install --only main
 
 EXPOSE 5001
 
