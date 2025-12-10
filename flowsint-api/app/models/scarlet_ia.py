@@ -5,7 +5,9 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
-from app.models.base import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 
 class ScarletIAMessage(Base):

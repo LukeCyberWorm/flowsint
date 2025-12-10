@@ -9,9 +9,10 @@ from uuid import UUID
 import uuid
 from datetime import datetime
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, get_admin_user
 from app.models.scarlet_ia import ScarletIAMessage, ScarletIANote, ScarletIAChatSession
 from app.services.scarlet_ia_service import scarlet_ia_service
+from flowsint_core.core.models import Profile
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -70,13 +71,13 @@ class ToolExecuteRequest(BaseModel):
 @router.post("/chat")
 async def chat_stream(
     request: ChatRequest,
-    current_user: dict = Depends(get_current_user),
+    current_user: Profile = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """
     Stream chat responses using Server-Sent Events
     """
-    user_id = current_user.get("user_id")
+    user_id = current_user.id
     
     # Convert Pydantic messages to dict
     messages = []
@@ -102,7 +103,7 @@ async def chat_stream(
         db_message = ScarletIAMessage(
             id=uuid.uuid4(),
             investigation_id=UUID(request.investigation_id) if request.investigation_id else None,
-            user_id=UUID(user_id),
+            user_id=user_id,
             chat_id=request.id,
             message_id=last_user_message.id,
             role="user",
@@ -115,14 +116,15 @@ async def chat_stream(
     
     # Update or create chat session
     chat_session = db.query(ScarletIAChatSession).filter(
-        ScarletIAChatSession.chat_id == request.id
+        ScarletIAChatSession.chat_id == request.id,
+        ScarletIAChatSession.user_id == user_id
     ).first()
     
     if not chat_session:
         chat_session = ScarletIAChatSession(
             id=uuid.uuid4(),
             chat_id=request.id,
-            user_id=UUID(user_id),
+            user_id=user_id,
             investigation_id=UUID(request.investigation_id) if request.investigation_id else None,
             message_count=1,
             title=text_content[:100] if last_user_message else None
@@ -155,11 +157,11 @@ async def get_chat_history(
     chat_id: Optional[str] = None,
     investigation_id: Optional[str] = None,
     limit: int = 50,
-    current_user: dict = Depends(get_current_user),
+    current_user: Profile = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """Get chat history"""
-    user_id = UUID(current_user.get("user_id"))
+    user_id = current_user.id
     
     query = db.query(ScarletIAMessage).filter(ScarletIAMessage.user_id == user_id)
     
@@ -192,11 +194,11 @@ async def get_chat_history(
 @router.post("/notes", response_model=NoteResponse)
 async def create_note(
     note: NoteCreate,
-    current_user: dict = Depends(get_current_user),
+    current_user: Profile = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """Create a new note"""
-    user_id = UUID(current_user.get("user_id"))
+    user_id = current_user.id
     
     db_note = ScarletIANote(
         id=uuid.uuid4(),
@@ -222,11 +224,11 @@ async def create_note(
 @router.get("/notes", response_model=List[NoteResponse])
 async def get_notes(
     investigation_id: Optional[str] = None,
-    current_user: dict = Depends(get_current_user),
+    current_user: Profile = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """Get all notes"""
-    user_id = UUID(current_user.get("user_id"))
+    user_id = current_user.id
     
     query = db.query(ScarletIANote).filter(ScarletIANote.user_id == user_id)
     
@@ -251,11 +253,11 @@ async def get_notes(
 @router.delete("/notes/{note_id}")
 async def delete_note(
     note_id: str,
-    current_user: dict = Depends(get_current_user),
+    current_user: Profile = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
     """Delete a note"""
-    user_id = UUID(current_user.get("user_id"))
+    user_id = current_user.id
     
     note = db.query(ScarletIANote).filter(
         ScarletIANote.id == UUID(note_id),
@@ -274,10 +276,10 @@ async def delete_note(
 @router.post("/execute-tool")
 async def execute_tool(
     request: ToolExecuteRequest,
-    current_user: dict = Depends(get_current_user)
+    current_user: Profile = Depends(get_admin_user)
 ):
     """Execute a tool"""
-    user_id = current_user.get("user_id")
+    user_id = current_user.id
     
     result = await scarlet_ia_service.execute_tool(
         tool_name=request.tool_id,
@@ -289,14 +291,14 @@ async def execute_tool(
 
 
 @router.get("/tools")
-async def get_tools(current_user: dict = Depends(get_current_user)):
+async def get_tools(current_user: Profile = Depends(get_admin_user)):
     """Get available tools"""
     tools = await scarlet_ia_service.get_available_tools()
     return {"tools": tools}
 
 
 @router.get("/kali-tools")
-async def get_kali_tools(current_user: dict = Depends(get_current_user)):
+async def get_kali_tools(current_user: Profile = Depends(get_admin_user)):
     """Get Kali Linux tools"""
     all_tools = await scarlet_ia_service.get_available_tools()
     kali_tools = [t for t in all_tools if t["category"] == "kali"]

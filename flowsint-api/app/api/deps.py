@@ -16,6 +16,10 @@ load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Lista de emails com acesso ADMIN ao Scarlet-IA
+ADMIN_EMAILS = os.getenv("SCARLET_IA_ADMIN_EMAILS", "").split(",")
+ADMIN_EMAILS = [email.strip() for email in ADMIN_EMAILS if email.strip()]
+
 
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
@@ -36,3 +40,18 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_admin_user(
+    current_user: Profile = Depends(get_current_user)
+) -> Profile:
+    """
+    Verifica se o usuário atual é um administrador do Scarlet-IA.
+    Lança HTTPException 403 se não for admin.
+    """
+    if current_user.email not in ADMIN_EMAILS:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access to Scarlet-IA is restricted to administrators only"
+        )
+    return current_user

@@ -9,9 +9,6 @@ from openai import AsyncOpenAI
 from datetime import datetime
 import uuid
 
-# Initialize OpenAI client
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 # System prompt for Scarlet-IA
 SYSTEM_PROMPT = """Você é a Scarlet-IA, uma assistente de inteligência artificial avançada criada pela Scarlet Red Solutions para análise de dados, investigações OSINT e operações de segurança cibernética.
 
@@ -53,6 +50,16 @@ class ScarletIAService:
     
     def __init__(self):
         self.model = "gpt-4o"  # ou "gpt-4-turbo" ou "claude-3-5-sonnet-20241022" se usar Anthropic
+        self.client = None
+        
+    def _get_client(self) -> AsyncOpenAI:
+        """Lazy initialization of OpenAI client"""
+        if self.client is None:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY not set in environment")
+            self.client = AsyncOpenAI(api_key=api_key)
+        return self.client
         
     async def generate_message_id(self) -> str:
         """Generate a unique message ID"""
@@ -97,6 +104,9 @@ class ScarletIAService:
         try:
             # Send step-start event
             yield f"data: {json.dumps({'type': 'step-start'})}\n\n"
+            
+            # Get OpenAI client
+            client = self._get_client()
             
             # Stream response from OpenAI
             full_response = ""
