@@ -2,37 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* Disable text cursor on non-input elements */
+* {
+  caret-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable="true"],
+[role="textbox"] {
+  caret-color: auto;
+}
+
+/* Scrollbar styles */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgba(125, 125, 125, 0.204);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.573);
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  @apply m-0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+:root {
+  --background: oklch(.99 0 0);
+  --foreground: oklch(0.27 0 0);
+  --card: oklch(1.40 0 0);
+  --card-foreground: oklch(0.27 0 0);
+  --popover: oklch(21.00 0 0);
+  --popover-foreground: oklch(0.27 0 0);
+  --primary: #d72638;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.97 0.00 264.54);
+  --secondary-foreground: oklch(0.45 0.03 256.80);
+  --muted: oklch(0.98 0.00 247.84);
+  --muted-foreground: oklch(0.55 0.02 264.36);
+  --accent: oklch(0.99 0.02 95.28);
+  --accent-foreground: oklch(0.47 0.12 46.20);
+  --destructive: oklch(0.64 0.21 25.33);
+  --destructive-foreground: oklch(1.00 0 0);
+  --border: oklch(0.93 0.01 264.53);
+  --input: oklch(0.93 0.01 264.53);
+  --ring: oklch(0.77 0.16 70.08);
+  --radius: 0.580rem;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.dark {
+  --background: oklch(0.22 0 0);
+  --foreground: oklch(0.92 0 0);
+  --card: oklch(0.23 0 0);
+  --card-foreground: oklch(0.92 0 0);
+  --popover: oklch(0.27 0 0);
+  --popover-foreground: oklch(0.92 0 0);
+  --primary: #d72638;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.27 0 0);
+  --secondary-foreground: oklch(0.92 0 0);
+  --muted: oklch(0.27 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.47 0.12 46.20);
+  --accent-foreground: oklch(0.92 0.12 95.75);
+  --destructive: oklch(0.64 0.21 25.33);
+  --destructive-foreground: oklch(1.00 0 0);
+  --border: oklch(0.29 0 0);
+  --input: oklch(0.37 0 0);
+  --ring: oklch(0.77 0.16 70.08);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+@layer base {
+  * {
+    @apply border-[color:var(--border)];
+  }
+  
+  body {
+    @apply bg-[color:var(--background)] text-[color:var(--foreground)];
+  }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -115,10 +115,10 @@ export default function DossierViewPage() {
 
   if (dossierLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[color:var(--background)]">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-scarlet-600 animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">Carregando dossiê...</p>
+          <Loader className="w-12 h-12 text-[color:var(--primary)] animate-spin mx-auto mb-4" />
+          <p className="text-[color:var(--foreground)] text-lg">Carregando dossiê...</p>
         </div>
       </div>
     )
@@ -126,20 +126,20 @@ export default function DossierViewPage() {
 
   if (dossierError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[color:var(--background)]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center"
+          className="bg-[color:var(--card)] rounded-lg shadow-xl p-8 max-w-md w-full text-center border border-[color:var(--border)]"
         >
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Acesso Negado</h2>
-          <p className="text-gray-600 mb-6">
+          <div className="text-[color:var(--destructive)] text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-[color:var(--card-foreground)] mb-2">Acesso Negado</h2>
+          <p className="text-[color:var(--muted-foreground)] mb-6">
             Não foi possível acessar este dossiê. Verifique seu token de acesso e senha.
           </p>
           <button
             onClick={handleLogout}
-            className="bg-scarlet-600 text-white px-6 py-2 rounded-lg hover:bg-scarlet-700 transition"
+            className="bg-[color:var(--primary)] text-[color:var(--primary-foreground)] px-6 py-2 rounded-lg hover:opacity-90 transition"
           >
             Voltar ao Login
           </button>
@@ -151,22 +151,22 @@ export default function DossierViewPage() {
   if (!dossier) return null
 
   return (
-    <div className="min-h-screen pb-8">
+    <div className="min-h-screen pb-8 bg-[color:var(--background)]">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white shadow-lg"
+        className="bg-[color:var(--card)] shadow-lg border-b border-[color:var(--border)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-scarlet-100 p-3 rounded-lg">
-                <FileText className="w-8 h-8 text-scarlet-600" />
+              <div className="bg-[color:var(--primary)]/10 p-3 rounded-lg">
+                <FileText className="w-8 h-8 text-[color:var(--primary)]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{dossier.title}</h1>
-                <p className="text-sm text-gray-500">Caso #{dossier.case_number}</p>
+                <h1 className="text-2xl font-bold text-[color:var(--card-foreground)]">{dossier.title}</h1>
+                <p className="text-sm text-[color:var(--muted-foreground)]">Caso #{dossier.case_number}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -179,7 +179,7 @@ export default function DossierViewPage() {
               </span>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition"
+                className="flex items-center space-x-2 text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)] transition"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Sair</span>
@@ -191,8 +191,8 @@ export default function DossierViewPage() {
 
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="border-b border-gray-200">
+        <div className="bg-[color:var(--card)] rounded-lg shadow-lg overflow-hidden border border-[color:var(--border)]">
+          <div className="border-b border-[color:var(--border)]">
             <nav className="flex -mb-px">
               {[
                 { id: 'overview', label: 'Visão Geral' },
@@ -204,8 +204,8 @@ export default function DossierViewPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`px-6 py-4 text-sm font-medium transition ${
                     activeTab === tab.id
-                      ? 'border-b-2 border-scarlet-600 text-scarlet-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-b-2 border-[color:var(--primary)] text-[color:var(--primary)]'
+                      : 'text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)] hover:border-[color:var(--border)]'
                   }`}
                 >
                   {tab.label}
@@ -229,10 +229,10 @@ export default function DossierViewPage() {
                   {/* Description */}
                   {dossier.description && (
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      <h3 className="text-lg font-semibold text-[color:var(--card-foreground)] mb-3">
                         Descrição do Caso
                       </h3>
-                      <div className="prose max-w-none text-gray-700">
+                      <div className="prose max-w-none text-[color:var(--foreground)]">
                         <ReactMarkdown>{dossier.description}</ReactMarkdown>
                       </div>
                     </div>
@@ -241,13 +241,13 @@ export default function DossierViewPage() {
                   {/* Metadata */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {dossier.client_name && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-500 mb-1">Cliente</p>
-                        <p className="font-semibold text-gray-900">{dossier.client_name}</p>
+                      <div className="bg-[color:var(--muted)] rounded-lg p-4 border border-[color:var(--border)]">
+                        <p className="text-sm text-[color:var(--muted-foreground)] mb-1">Cliente</p>
+                        <p className="font-semibold text-[color:var(--card-foreground)]">{dossier.client_name}</p>
                       </div>
                     )}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-500 mb-1">Data de Criação</p>
+                    <div className="bg-[color:var(--muted)] rounded-lg p-4 border border-[color:var(--border)]">
+                      <p className="text-sm text-[color:var(--muted-foreground)] mb-1">Data de Criação</p>
                       <p className="font-semibold text-gray-900 flex items-center">
                         <Calendar className="w-4 h-4 mr-2" />
                         {format(new Date(dossier.created_at), 'PPP', { locale: ptBR })}

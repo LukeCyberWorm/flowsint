@@ -14,6 +14,9 @@ const queryClient = new QueryClient({
   },
 })
 
+// Set dark mode by default
+document.documentElement.classList.add('dark')
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
