@@ -25,28 +25,21 @@ export interface Dossier {
 export interface DossierFile {
   id: string
   dossier_id: string
-  filename: string
-  original_filename: string
-  file_type: 'document' | 'image' | 'video' | 'audio' | 'other'
-  mime_type?: string
+  file_name: string
+  file_type?: string
   file_size?: number
-  file_url?: string
-  description?: string
-  tags?: string[]
-  created_at: string
+  file_url: string
+  uploaded_at?: string
+  uploaded_by?: string
 }
 
 export interface DossierNote {
   id: string
   dossier_id: string
-  title?: string
   content: string
-  note_type: string
-  is_pinned: boolean
-  order: number
-  tags?: string[]
-  created_at: string
-  updated_at: string
+  is_pinned?: boolean
+  created_at?: string
+  created_by?: string
 }
 
 export interface ChatMessage {

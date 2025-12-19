@@ -36,31 +36,25 @@ class Dossier(Base):
     __tablename__ = "dossiers"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    investigation_id = Column(UUID(as_uuid=True), nullable=False, index=True, unique=True)  # Link para investigation
+    investigation_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # Link para investigation
     case_number = Column(String(50), nullable=False, unique=True, index=True)  # Número do caso
-    title = Column(String(255), nullable=False)  # Título do caso
+    title = Column(Text, nullable=False)  # Título do caso
     description = Column(Text, nullable=True)  # Descrição do caso
-    status = Column(SQLEnum(DossierStatus), default=DossierStatus.DRAFT, nullable=False, index=True)
+    status = Column(String(20), default="active", nullable=True, index=True)
     
     # Metadados
-    client_name = Column(String(255), nullable=True)  # Nome do cliente
-    client_email = Column(String(255), nullable=True)  # Email do cliente
-    assigned_to = Column(UUID(as_uuid=True), nullable=True, index=True)  # Responsável pelo caso
+    client_name = Column(Text, nullable=True)  # Nome do cliente
     
     # Configurações de acesso
-    is_public = Column(Boolean, default=False, nullable=False)  # Se é público para o cliente
-    access_token = Column(String(255), nullable=True, unique=True, index=True)  # Token para acesso do cliente
-    access_password = Column(String(255), nullable=True)  # Senha hash para acesso (opcional)
-    
-    # Dados adicionais
-    extra_data = Column(JSONB, nullable=True)  # Metadados adicionais em JSON (renomeado de metadata)
-    tags = Column(JSONB, nullable=True)  # Tags do dossiê
+    is_public = Column(Boolean, default=False, nullable=True)  # Se é público para o cliente
+    access_token = Column(String(64), nullable=False, unique=True, index=True)  # Token para acesso do cliente
+    password_hash = Column(String(255), nullable=True)  # Senha hash para acesso (opcional)
+    expires_at = Column(DateTime, nullable=True)  # Data de expiração
+    last_accessed_at = Column(DateTime, nullable=True)  # Último acesso
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    created_by = Column(UUID(as_uuid=True), nullable=False, index=True)  # Usuário que criou
-    updated_by = Column(UUID(as_uuid=True), nullable=True)  # Último usuário que atualizou
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=True, index=True)
+    created_by = Column(UUID(as_uuid=True), nullable=True)
 
     def __repr__(self):
         return f"<Dossier {self.case_number} - {self.title}>"
@@ -76,29 +70,17 @@ class DossierFile(Base):
     dossier_id = Column(UUID(as_uuid=True), ForeignKey("dossiers.id", ondelete="CASCADE"), nullable=False, index=True)
     
     # Informações do arquivo
-    filename = Column(String(255), nullable=False)
-    original_filename = Column(String(255), nullable=False)
-    file_type = Column(SQLEnum(DossierFileType), nullable=False)
-    mime_type = Column(String(100), nullable=True)
+    file_name = Column(Text, nullable=False)
+    file_type = Column(String(50), nullable=True)
     file_size = Column(Integer, nullable=True)  # Tamanho em bytes
-    file_path = Column(String(500), nullable=False)  # Caminho no storage
-    file_url = Column(String(500), nullable=True)  # URL pública (se aplicável)
-    
-    # Metadados
-    description = Column(Text, nullable=True)
-    tags = Column(JSONB, nullable=True)
-    extra_data = Column(JSONB, nullable=True)  # Metadados adicionais (renomeado de metadata)
-    
-    # Controle
-    is_visible_to_client = Column(Boolean, default=True, nullable=False)  # Visível para cliente
-    order = Column(Integer, default=0, nullable=False)  # Ordem de exibição
+    file_url = Column(Text, nullable=False)  # URL pública
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    created_by = Column(UUID(as_uuid=True), nullable=False)
+    uploaded_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    uploaded_by = Column(UUID(as_uuid=True), nullable=True)
 
     def __repr__(self):
-        return f"<DossierFile {self.filename}>"
+        return f"<DossierFile {self.file_name}>"
 
 
 class DossierNote(Base):
@@ -112,27 +94,17 @@ class DossierNote(Base):
     dossier_id = Column(UUID(as_uuid=True), ForeignKey("dossiers.id", ondelete="CASCADE"), nullable=False, index=True)
     
     # Conteúdo
-    title = Column(String(255), nullable=True)
     content = Column(Text, nullable=False)
-    note_type = Column(String(50), default="general", nullable=False)  # general, timeline, evidence, etc
     
     # Controle
-    is_internal = Column(Boolean, default=False, nullable=False)  # Se é nota interna (não visível para cliente)
-    is_pinned = Column(Boolean, default=False, nullable=False)  # Se está fixada no topo
-    order = Column(Integer, default=0, nullable=False)
-    
-    # Metadados
-    tags = Column(JSONB, nullable=True)
-    extra_data = Column(JSONB, nullable=True)  # Dados adicionais (renomeado de metadata)
+    is_pinned = Column(Boolean, default=False, nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    created_by = Column(UUID(as_uuid=True), nullable=False)
-    updated_by = Column(UUID(as_uuid=True), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    created_by = Column(UUID(as_uuid=True), nullable=True)
 
     def __repr__(self):
-        return f"<DossierNote {self.title or self.id}>"
+        return f"<DossierNote {self.id}>"
 
 
 class DossierAccessLog(Base):

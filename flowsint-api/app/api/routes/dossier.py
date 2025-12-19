@@ -28,7 +28,7 @@ from app.models.dossier import (
     Dossier, DossierFile, DossierNote, DossierIAChat, DossierAccessLog
 )
 from flowsint_core.core.postgre_db import get_db
-from flowsint_core.core.auth import get_current_user
+from app.api.deps import get_current_user
 from flowsint_core.core.models import Profile
 
 router = APIRouter()
@@ -108,7 +108,7 @@ def create_dossier(
     db_dossier = Dossier(
         **dossier.model_dump(exclude={"access_password"}),
         access_token=generate_access_token(),
-        access_password=hash_password(dossier.access_password) if dossier.access_password else None,
+        password_hash=hash_password(dossier.access_password) if dossier.access_password else None,
         created_by=current_user.id,
         status=DossierStatus.DRAFT
     )
@@ -235,10 +235,7 @@ def update_dossier(
     
     # Atualiza senha se fornecida
     if dossier_update.access_password:
-        dossier.access_password = hash_password(dossier_update.access_password)
-    
-    dossier.updated_by = current_user.id
-    dossier.updated_at = datetime.utcnow()
+        dossier.password_hash = hash_password(dossier_update.access_password)
     
     db.commit()
     db.refresh(dossier)
@@ -576,16 +573,16 @@ def client_access_dossier(
         raise HTTPException(status_code=404, detail="Dossiê não encontrado ou não disponível")
     
     # Verifica senha se configurada
-    if dossier.access_password:
+    if dossier.password_hash:
         if not access_request.password:
             raise HTTPException(status_code=401, detail="Senha requerida")
-        if not verify_access_password(access_request.password, dossier.access_password):
+        if not verify_access_password(access_request.password, dossier.password_hash):
             raise HTTPException(status_code=401, detail="Senha incorreta")
     
     # Log de acesso
     log_access(db, dossier.id, "client_view", access_token=access_request.access_token, request=request)
     
-    return DossierClientView(**dossier.__dict__)
+    return DossierClientView.model_validate(dossier)
 
 
 @router.get("/client/{access_token}/files", response_model=List[DossierFileResponse])
@@ -603,9 +600,8 @@ def client_list_files(
         raise HTTPException(status_code=404, detail="Dossiê não encontrado")
     
     files = db.query(DossierFile).filter(
-        DossierFile.dossier_id == dossier.id,
-        DossierFile.is_visible_to_client == True
-    ).order_by(DossierFile.order, DossierFile.created_at).all()
+        DossierFile.dossier_id == dossier.id
+    ).order_by(DossierFile.uploaded_at).all()
     
     return files
 
@@ -625,11 +621,9 @@ def client_list_notes(
         raise HTTPException(status_code=404, detail="Dossiê não encontrado")
     
     notes = db.query(DossierNote).filter(
-        DossierNote.dossier_id == dossier.id,
-        DossierNote.is_internal == False
+        DossierNote.dossier_id == dossier.id
     ).order_by(
         DossierNote.is_pinned.desc(),
-        DossierNote.order,
         DossierNote.created_at.desc()
     ).all()
     

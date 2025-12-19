@@ -5,17 +5,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText,
   Download,
-  Calendar,
-  Tag,
   Image as ImageIcon,
-  File,
   Video,
   Music,
-  ChevronDown,
-  ChevronUp,
-  Pin,
+  MapPin,
+  Building2,
+  Users,
+  Shield,
+  AlertTriangle,
+  Clock,
+  Target,
   LogOut,
   Loader,
+  ChevronRight,
+  Pin,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -28,8 +31,8 @@ export default function DossierViewPage() {
   const navigate = useNavigate()
   const password = searchParams.get('password') || undefined
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'files' | 'notes'>('overview')
-  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
+  const [selectedSection, setSelectedSection] = useState<string>('overview')
+  const [activeSubject, setActiveSubject] = useState<'pedro' | 'afonso'>('pedro')
 
   // Fetch dossier data
   const {
@@ -50,7 +53,7 @@ export default function DossierViewPage() {
   })
 
   // Fetch notes
-  const { data: notes = [], isLoading: notesLoading } = useQuery<DossierNote[]>({
+  const { data: notes = [] } = useQuery<DossierNote[]>({
     queryKey: ['dossier-notes', accessToken],
     queryFn: () => dossierApi.getNotes(accessToken!),
     enabled: !!accessToken && !!dossier,
@@ -60,372 +63,435 @@ export default function DossierViewPage() {
     navigate('/login')
   }
 
-  const toggleNote = (noteId: string) => {
-    setExpandedNotes((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(noteId)) {
-        newSet.delete(noteId)
-      } else {
-        newSet.add(noteId)
-      }
-      return newSet
-    })
-  }
-
   const getFileIcon = (fileType: string) => {
     switch (fileType) {
       case 'image':
-        return <ImageIcon className="w-8 h-8" />
+        return <ImageIcon className="w-5 h-5" />
       case 'video':
-        return <Video className="w-8 h-8" />
+        return <Video className="w-5 h-5" />
       case 'audio':
-        return <Music className="w-8 h-8" />
+        return <Music className="w-5 h-5" />
       default:
-        return <File className="w-8 h-8" />
+        return <FileText className="w-5 h-5" />
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800'
-      case 'closed':
-        return 'bg-gray-100 text-gray-800'
-      case 'archived':
-        return 'bg-yellow-100 text-yellow-800'
-      default:
-        return 'bg-blue-100 text-blue-800'
-    }
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'Ativo'
-      case 'closed':
-        return 'Fechado'
-      case 'archived':
-        return 'Arquivado'
-      case 'draft':
-        return 'Rascunho'
-      default:
-        return status
+  const getSubject = (content: string = '', filename: string = '') => {
+    const text = (content + filename).toLowerCase()
+    
+    // Explicit checks for Afonso
+    if (text.includes('afonso henrique') || 
+        text.includes('afonso lagoeiro') || 
+        text.includes('pai provável') ||
+        filename.includes('afonso')) {
+      return 'afonso'
     }
+    
+    // Explicit checks for Pedro
+    if (text.includes('pedro henrique') || 
+        text.includes('pedro ferreira') || 
+        filename.includes('pedro')) {
+      return 'pedro'
+    }
+
+    // Default fallback based on context
+    if (text.includes('afonso') && !text.includes('pedro')) return 'afonso'
+    
+    return 'pedro'
   }
+
+  const filteredNotes = notes.filter(note => getSubject(note.content) === activeSubject)
+  const filteredFiles = files.filter(file => getSubject('', file.file_name) === activeSubject)
+  const pinnedNotes = filteredNotes.filter((note) => note.is_pinned)
+  const regularNotes = filteredNotes.filter((note) => !note.is_pinned)
+
+  const profileImage = files.find(
+    (f) => f.file_type === 'image' && 
+           f.file_name && 
+           (f.file_name.toLowerCase().includes('perfil') || f.file_name.toLowerCase().includes('profile')) &&
+           getSubject('', f.file_name) === activeSubject
+  )
+
+  const subjectName = activeSubject === 'pedro' ? 'Pedro Henrique Ferreira Dutra' : 'Afonso Henrique Lagoeiro Dutra'
 
   if (dossierLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[color:var(--background)]">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Loader className="w-12 h-12 text-[#d72638] animate-spin" />
+      </div>
+    )
+  }
+
+  if (dossierError || !dossier) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-[color:var(--primary)] animate-spin mx-auto mb-4" />
-          <p className="text-[color:var(--foreground)] text-lg">Carregando dossiê...</p>
+          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white mb-2">Acesso Negado</h1>
+          <p className="text-gray-400">Não foi possível acessar este dossiê.</p>
+          <button
+            onClick={handleLogout}
+            className="mt-6 px-6 py-2 bg-[#d72638] text-white rounded-lg hover:bg-[#b91f2f] transition"
+          >
+            Voltar ao Login
+          </button>
         </div>
       </div>
     )
   }
 
-  if (dossierError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[color:var(--background)]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[color:var(--card)] rounded-lg shadow-xl p-8 max-w-md w-full text-center border border-[color:var(--border)]"
-        >
-          <div className="text-[color:var(--destructive)] text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-[color:var(--card-foreground)] mb-2">Acesso Negado</h2>
-          <p className="text-[color:var(--muted-foreground)] mb-6">
-            Não foi possível acessar este dossiê. Verifique seu token de acesso e senha.
-          </p>
-          <button
-            onClick={handleLogout}
-            className="bg-[color:var(--primary)] text-[color:var(--primary-foreground)] px-6 py-2 rounded-lg hover:opacity-90 transition"
-          >
-            Voltar ao Login
-          </button>
-        </motion.div>
-      </div>
-    )
-  }
-
-  if (!dossier) return null
-
   return (
-    <div className="min-h-screen pb-8 bg-[color:var(--background)]">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-[color:var(--card)] shadow-lg border-b border-[color:var(--border)]"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <header className="bg-[#111] border-b-2 border-[#d72638] sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="bg-[color:var(--primary)]/10 p-3 rounded-lg">
-                <FileText className="w-8 h-8 text-[color:var(--primary)]" />
-              </div>
+            <div className="flex items-center gap-4">
+              <Shield className="w-8 h-8 text-[#d72638]" />
               <div>
-                <h1 className="text-2xl font-bold text-[color:var(--card-foreground)]">{dossier.title}</h1>
-                <p className="text-sm text-[color:var(--muted-foreground)]">Caso #{dossier.case_number}</p>
+                <h1 className="text-2xl font-bold text-white">SCARLET RED SOLUTIONS</h1>
+                <p className="text-sm text-gray-400">Technical Dossier</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
-                  dossier.status
-                )}`}
-              >
-                {getStatusLabel(dossier.status)}
-              </span>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-400">Case</p>
+                <p className="font-mono font-bold text-[#d72638]">{dossier.case_number}</p>
+              </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)] transition"
+                className="p-2 hover:bg-[#1a1a1a] rounded-lg transition"
+                title="Sair"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Sair</span>
               </button>
             </div>
           </div>
         </div>
-      </motion.div>
+      </header>
 
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="bg-[color:var(--card)] rounded-lg shadow-lg overflow-hidden border border-[color:var(--border)]">
-          <div className="border-b border-[color:var(--border)]">
-            <nav className="flex -mb-px">
-              {[
-                { id: 'overview', label: 'Visão Geral' },
-                { id: 'files', label: `Arquivos (${files.length})` },
-                { id: 'notes', label: `Notas (${notes.length})` },
-              ].map((tab) => (
+      <div className="container mx-auto px-6 py-8">
+        {/* Subject Switcher */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-[#111] p-1 rounded-lg border border-[#222] inline-flex">
+            <button
+              onClick={() => setActiveSubject('pedro')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                activeSubject === 'pedro'
+                  ? 'bg-[#d72638] text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-[#222]'
+              }`}
+            >
+              Pedro Henrique
+            </button>
+            <button
+              onClick={() => setActiveSubject('afonso')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                activeSubject === 'afonso'
+                  ? 'bg-[#d72638] text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-[#222]'
+              }`}
+            >
+              Afonso Henrique
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Sidebar - Profile Card */}
+          <div className="lg:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-[#111] rounded-xl p-6 border border-[#222] sticky top-24"
+            >
+              {/* Profile Image */}
+              <div className="mb-6">
+                {profileImage ? (
+                  <img
+                    src={profileImage.file_url}
+                    alt="Profile"
+                    className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-[#d72638]"
+                  />
+                ) : (
+                  <div className="w-48 h-48 rounded-full mx-auto bg-[#222] flex items-center justify-center border-4 border-[#d72638]">
+                    <Target className="w-24 h-24 text-gray-600" />
+                  </div>
+                )}
+              </div>
+
+              {/* Target Name */}
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold mb-1">{subjectName}</h2>
+                {dossier.client_name && (
+                  <p className="text-sm text-gray-400">{dossier.client_name}</p>
+                )}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between items-center py-2 border-b border-[#222]">
+                  <span className="text-sm text-gray-400">Case Number</span>
+                  <span className="font-mono text-[#d72638]">{dossier.case_number}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-[#222]">
+                  <span className="text-sm text-gray-400">Status</span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      dossier.status === 'active'
+                        ? 'bg-green-900/30 text-green-400'
+                        : 'bg-gray-900/30 text-gray-400'
+                    }`}
+                  >
+                    {dossier.status?.toUpperCase()}
+                  </span>
+                </div>
+                {dossier.created_at && (
+                  <div className="flex justify-between items-center py-2 border-b border-[#222]">
+                    <span className="text-sm text-gray-400">Created</span>
+                    <span className="text-sm">
+                      {format(new Date(dossier.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-sm text-gray-400">Accuracy</span>
+                  <span className="text-lg font-bold text-green-400">99.5%</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-6 py-4 text-sm font-medium transition ${
-                    activeTab === tab.id
-                      ? 'border-b-2 border-[color:var(--primary)] text-[color:var(--primary)]'
-                      : 'text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)] hover:border-[color:var(--border)]'
+                  onClick={() => setSelectedSection('overview')}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-between ${
+                    selectedSection === 'overview'
+                      ? 'bg-[#d72638] text-white'
+                      : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#222]'
                   }`}
                 >
-                  {tab.label}
+                  <span>Overview</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
-              ))}
-            </nav>
+                <button
+                  onClick={() => setSelectedSection('analysis')}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-between ${
+                    selectedSection === 'analysis'
+                      ? 'bg-[#d72638] text-white'
+                      : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#222]'
+                  }`}
+                >
+                  <span>General Analysis</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setSelectedSection('documents')}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-between ${
+                    selectedSection === 'documents'
+                      ? 'bg-[#d72638] text-white'
+                      : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#222]'
+                  }`}
+                >
+                  <span>Documents</span>
+                  <span className="text-xs bg-[#d72638] px-2 py-1 rounded-full">{filteredFiles.length}</span>
+                </button>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
-              {/* Overview Tab */}
-              {activeTab === 'overview' && (
+              {/* Overview Section */}
+              {selectedSection === 'overview' && (
                 <motion.div
                   key="overview"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   className="space-y-6"
                 >
-                  {/* Description */}
-                  {dossier.description && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-[color:var(--card-foreground)] mb-3">
-                        Descrição do Caso
-                      </h3>
-                      <div className="prose max-w-none text-[color:var(--foreground)]">
+                  {/* Description - Only show for Pedro as it is the main case description */}
+                  {dossier.description && activeSubject === 'pedro' && (
+                    <div className="bg-[#111] rounded-xl p-6 border border-[#222]">
+                      <h3 className="text-xl font-bold mb-4 text-[#d72638]">Case Description</h3>
+                      <div className="prose prose-invert max-w-none">
                         <ReactMarkdown>{dossier.description}</ReactMarkdown>
                       </div>
                     </div>
                   )}
 
-                  {/* Metadata */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {dossier.client_name && (
-                      <div className="bg-[color:var(--muted)] rounded-lg p-4 border border-[color:var(--border)]">
-                        <p className="text-sm text-[color:var(--muted-foreground)] mb-1">Cliente</p>
-                        <p className="font-semibold text-[color:var(--card-foreground)]">{dossier.client_name}</p>
-                      </div>
-                    )}
-                    <div className="bg-[color:var(--muted)] rounded-lg p-4 border border-[color:var(--border)]">
-                      <p className="text-sm text-[color:var(--muted-foreground)] mb-1">Data de Criação</p>
-                      <p className="font-semibold text-gray-900 flex items-center">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {format(new Date(dossier.created_at), 'PPP', { locale: ptBR })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  {dossier.tags && dossier.tags.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                        <Tag className="w-5 h-5 mr-2" />
-                        Tags
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {dossier.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="bg-scarlet-100 text-scarlet-800 px-3 py-1 rounded-full text-sm font-medium"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                  {/* Pinned Notes */}
+                  {pinnedNotes.length > 0 && (
+                    <div className="space-y-4">
+                      {pinnedNotes.map((note) => (
+                        <div
+                          key={note.id}
+                          className="bg-[#111] rounded-xl p-6 border border-[#d72638] relative"
+                        >
+                          <Pin className="absolute top-4 right-4 w-5 h-5 text-[#d72638]" />
+                          <div className="prose prose-invert max-w-none">
+                            <ReactMarkdown>{note.content}</ReactMarkdown>
+                          </div>
+                          {note.created_at && (
+                            <div className="mt-4 pt-4 border-t border-[#222] flex items-center gap-2 text-sm text-gray-400">
+                              <Clock className="w-4 h-4" />
+                              {format(new Date(note.created_at), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", {
+                                locale: ptBR,
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
 
-                  {/* Summary */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-blue-50 rounded-lg p-4 text-center">
-                      <File className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-blue-900">{files.length}</p>
-                      <p className="text-sm text-blue-700">Arquivos</p>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-4 text-center">
-                      <FileText className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-green-900">{notes.length}</p>
-                      <p className="text-sm text-green-700">Notas</p>
-                    </div>
-                    <div className="bg-purple-50 rounded-lg p-4 text-center">
-                      <ImageIcon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-purple-900">
-                        {files.filter((f) => f.file_type === 'image').length}
-                      </p>
-                      <p className="text-sm text-purple-700">Imagens</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Files Tab */}
-              {activeTab === 'files' && (
-                <motion.div
-                  key="files"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                >
-                  {filesLoading ? (
-                    <div className="text-center py-12">
-                      <Loader className="w-8 h-8 text-scarlet-600 animate-spin mx-auto" />
-                    </div>
-                  ) : files.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <File className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p>Nenhum arquivo disponível</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {files.map((file) => (
-                        <motion.div
-                          key={file.id}
-                          whileHover={{ scale: 1.02 }}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-                          onClick={() => {
-                            window.open(
-                              dossierApi.downloadFile(file.dossier_id, file.id),
-                              '_blank'
-                            )
-                          }}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <div className="text-scarlet-600">{getFileIcon(file.file_type)}</div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">
-                                {file.original_filename}
-                              </p>
-                              {file.description && (
-                                <p className="text-sm text-gray-500 mt-1">{file.description}</p>
-                              )}
-                              <div className="flex items-center justify-between mt-2">
-                                <span className="text-xs text-gray-400">
-                                  {file.file_size
-                                    ? `${(file.file_size / 1024).toFixed(2)} KB`
-                                    : 'N/A'}
-                                </span>
-                                <Download className="w-4 h-4 text-gray-400" />
-                              </div>
-                            </div>
+                  {/* Regular Notes */}
+                  {regularNotes.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold text-[#d72638]">Additional Notes</h3>
+                      {regularNotes.map((note) => (
+                        <div key={note.id} className="bg-[#111] rounded-xl p-6 border border-[#222]">
+                          <div className="prose prose-invert max-w-none">
+                            <ReactMarkdown>{note.content}</ReactMarkdown>
                           </div>
-                        </motion.div>
+                          {note.created_at && (
+                            <div className="mt-4 pt-4 border-t border-[#222] flex items-center gap-2 text-sm text-gray-400">
+                              <Clock className="w-4 h-4" />
+                              {format(new Date(note.created_at), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", {
+                                locale: ptBR,
+                              })}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
                 </motion.div>
               )}
 
-              {/* Notes Tab */}
-              {activeTab === 'notes' && (
+              {/* Analysis Section */}
+              {selectedSection === 'analysis' && (
                 <motion.div
-                  key="notes"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="space-y-4"
+                  key="analysis"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-[#111] rounded-xl p-6 border border-[#222]"
                 >
-                  {notesLoading ? (
-                    <div className="text-center py-12">
-                      <Loader className="w-8 h-8 text-scarlet-600 animate-spin mx-auto" />
+                  <h3 className="text-xl font-bold mb-6 text-[#d72638]">General Analysis</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4 p-4 bg-[#1a1a1a] rounded-lg">
+                      <MapPin className="w-6 h-6 text-[#d72638] flex-shrink-0 mt-1" />
+                      <div>
+                        <h4 className="font-semibold mb-1">Geolocalização Principal</h4>
+                        <p className="text-sm text-gray-400">
+                          Goiânia-GO, Flores de Goiás-GO, Naviraí-MS
+                        </p>
+                      </div>
                     </div>
-                  ) : notes.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p>Nenhuma nota disponível</p>
+                    <div className="flex items-start gap-4 p-4 bg-[#1a1a1a] rounded-lg">
+                      <Building2 className="w-6 h-6 text-[#d72638] flex-shrink-0 mt-1" />
+                      <div>
+                        <h4 className="font-semibold mb-1">Empresas Vinculadas</h4>
+                        <p className="text-sm text-gray-400">Agro Dutra Participações | P & L Intermediações</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4 p-4 bg-[#1a1a1a] rounded-lg">
+                      <Target className="w-6 h-6 text-[#d72638] flex-shrink-0 mt-1" />
+                      <div>
+                        <h4 className="font-semibold mb-1">Facial Match</h4>
+                        <p className="text-sm text-gray-400">99.5% accuracy | Scarlet-IA</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4 p-4 bg-[#1a1a1a] rounded-lg">
+                      <Users className="w-6 h-6 text-[#d72638] flex-shrink-0 mt-1" />
+                      <div>
+                        <h4 className="font-semibold mb-1">Núcleo Familiar</h4>
+                        <p className="text-sm text-gray-400">6 membros mapeados | Relacionamentos confirmados</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Documents Section */}
+              {selectedSection === 'documents' && (
+                <motion.div
+                  key="documents"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-[#111] rounded-xl p-6 border border-[#222]"
+                >
+                  <h3 className="text-xl font-bold mb-6 text-[#d72638]">Associated Documents</h3>
+                  {filesLoading ? (
+                    <div className="text-center py-12">
+                      <Loader className="w-8 h-8 text-[#d72638] animate-spin mx-auto" />
+                    </div>
+                  ) : filteredFiles.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <FileText className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                      <p>Nenhum documento disponível</p>
                     </div>
                   ) : (
-                    notes.map((note) => {
-                      const isExpanded = expandedNotes.has(note.id)
-                      return (
-                        <motion.div
-                          key={note.id}
-                          layout
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition"
-                        >
-                          <div
-                            className="flex items-start justify-between cursor-pointer"
-                            onClick={() => toggleNote(note.id)}
-                          >
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                {note.is_pinned && (
-                                  <Pin className="w-4 h-4 text-scarlet-600" />
-                                )}
-                                {note.title && (
-                                  <h4 className="font-semibold text-gray-900">{note.title}</h4>
-                                )}
-                              </div>
-                              <div
-                                className={`prose max-w-none text-gray-700 ${
-                                  !isExpanded ? 'line-clamp-3' : ''
-                                }`}
-                              >
-                                <ReactMarkdown>{note.content}</ReactMarkdown>
-                              </div>
-                            </div>
-                            <button className="text-gray-400 hover:text-gray-600 ml-4">
-                              {isExpanded ? (
-                                <ChevronUp className="w-5 h-5" />
-                              ) : (
-                                <ChevronDown className="w-5 h-5" />
-                              )}
-                            </button>
-                          </div>
-                          {note.tags && note.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {note.tags.map((tag, index) => (
-                                <span
-                                  key={index}
-                                  className="bg-white text-gray-600 px-2 py-1 rounded text-xs"
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-[#222]">
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Type</th>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Name</th>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Date</th>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-400">Size</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-400">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredFiles.map((file) => (
+                            <tr
+                              key={file.id}
+                              className="border-b border-[#222] hover:bg-[#1a1a1a] transition"
+                            >
+                              <td className="py-4 px-4">
+                                <div className="flex items-center gap-2 text-[#d72638]">
+                                  {getFileIcon(file.file_type || 'other')}
+                                  <span className="text-xs font-mono uppercase">
+                                    {file.file_type || 'other'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p className="font-medium">{file.file_name}</p>
+                              </td>
+                              <td className="py-4 px-4 text-sm text-gray-400">
+                                {file.uploaded_at &&
+                                  format(new Date(file.uploaded_at), 'dd-MM-yyyy', { locale: ptBR })}
+                              </td>
+                              <td className="py-4 px-4 text-sm text-gray-400">
+                                {file.file_size ? formatFileSize(file.file_size) : '-'}
+                              </td>
+                              <td className="py-4 px-4 text-right">
+                                <a
+                                  href={file.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#d72638] hover:bg-[#b91f2f] rounded-lg text-sm font-medium transition"
                                 >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </motion.div>
-                      )
-                    })
+                                  <Download className="w-4 h-4" />
+                                  View
+                                </a>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </motion.div>
               )}
@@ -433,6 +499,20 @@ export default function DossierViewPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-[#111] border-t-2 border-[#d72638] mt-12">
+        <div className="container mx-auto px-6 py-8">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm mb-2">Equipe Responsável:</p>
+            <p className="text-white font-medium">Lucas Oliveira - CEO & Perito Forense Digital</p>
+            <p className="text-white font-medium">Rafael Martin Carreno de Paula Souza - Advogado (OAB/SP 354.241)</p>
+            <p className="text-gray-400 text-sm mt-4">
+              © 2025 Scarlet Red Solutions - Todos os direitos reservados
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

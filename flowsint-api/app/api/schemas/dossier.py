@@ -103,18 +103,15 @@ class DossierFileUpdate(BaseModel):
     order: Optional[int] = None
 
 
-class DossierFileResponse(DossierFileBase):
+class DossierFileResponse(BaseModel):
     id: UUID
     dossier_id: UUID
-    filename: str
-    original_filename: str
-    file_type: DossierFileType
-    mime_type: Optional[str]
+    file_name: str
+    file_type: Optional[str]
     file_size: Optional[int]
-    file_path: str
-    file_url: Optional[str]
-    created_at: datetime
-    created_by: UUID
+    file_url: str
+    uploaded_at: Optional[datetime]
+    uploaded_by: Optional[UUID]
     
     class Config:
         from_attributes = True
@@ -148,13 +145,13 @@ class DossierNoteUpdate(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
 
 
-class DossierNoteResponse(DossierNoteBase):
+class DossierNoteResponse(BaseModel):
     id: UUID
     dossier_id: UUID
-    created_at: datetime
-    updated_at: datetime
-    created_by: UUID
-    updated_by: Optional[UUID]
+    content: str
+    is_pinned: Optional[bool]
+    created_at: Optional[datetime]
+    created_by: Optional[UUID]
     
     class Config:
         from_attributes = True
@@ -194,12 +191,11 @@ class DossierClientView(BaseModel):
     id: UUID
     case_number: str
     title: str
-    description: Optional[str]
-    status: DossierStatus
-    client_name: Optional[str]
-    tags: Optional[List[str]]
-    created_at: datetime
-    updated_at: datetime
+    description: Optional[str] = None
+    status: Optional[str] = "active"
+    client_name: Optional[str] = None
+    tags: Optional[List[str]] = None
+    created_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
