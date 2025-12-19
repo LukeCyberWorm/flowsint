@@ -1,0 +1,6 @@
+# Ignore everything by default (monorepo)
+*
+
+# Only include specific directories when explicitly configured
+!flowsint-dossier/**
+!flowsint-dossier-admin/**

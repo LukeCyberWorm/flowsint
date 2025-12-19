@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[[services]]
+name = "dossier-client"
+source = "flowsint-dossier"
+
+[[services]]
+name = "dossier-admin"
+source = "flowsint-dossier-admin"
