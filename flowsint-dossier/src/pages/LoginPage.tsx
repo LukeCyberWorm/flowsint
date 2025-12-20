@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Lock, FileText } from 'lucide-react'
+import { Lock, FileText, Mail } from 'lucide-react'
+import { login } from '../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [accessToken, setAccessToken] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,12 +17,12 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Navega para a página do dossiê
-      // A validação será feita na página de visualização
-      const url = `/dossier/${accessToken}${password ? `?password=${encodeURIComponent(password)}` : ''}`
-      navigate(url)
+      const data = await login(email, password)
+      localStorage.setItem('admin_token', data.access_token)
+      navigate('/admin')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Erro ao acessar dossiê')
+      console.error(err)
+      setError('Credenciais inválidas ou erro no servidor')
     } finally {
       setLoading(false)
     }
@@ -46,7 +47,7 @@ export default function LoginPage() {
               <FileText className="w-10 h-10 text-scarlet-600" />
             </motion.div>
             <h1 className="text-2xl font-bold text-white mb-2">
-              Dossiê de Caso
+              Painel Administrativo
             </h1>
             <p className="text-scarlet-100">
               Scarlet Red Solutions
@@ -58,21 +59,24 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Token de Acesso
+                  Email
                 </label>
-                <input
-                  type="text"
-                  value={accessToken}
-                  onChange={(e) => setAccessToken(e.target.value)}
-                  placeholder="Digite o token fornecido"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-scarlet-500 focus:border-transparent outline-none transition"
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@scarletredsolutions.com"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-scarlet-500 focus:border-transparent outline-none transition"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha (opcional)
+                  Senha
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -80,8 +84,9 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Se necessário"
+                    placeholder="Sua senha"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-scarlet-500 focus:border-transparent outline-none transition"
+                    required
                   />
                 </div>
               </div>
@@ -100,21 +105,15 @@ export default function LoginPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={loading || !accessToken}
+                disabled={loading || !email || !password}
                 className="w-full bg-gradient-to-r from-scarlet-600 to-scarlet-700 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Acessando...' : 'Acessar Dossiê'}
+                {loading ? 'Entrando...' : 'Entrar no Painel'}
               </motion.button>
             </form>
 
             <div className="mt-6 text-center text-sm text-gray-500">
-              <p>Precisa de ajuda?</p>
-              <a
-                href="mailto:contato@scarletredsolutions.com"
-                className="text-scarlet-600 hover:text-scarlet-700 font-medium"
-              >
-                contato@scarletredsolutions.com
-              </a>
+              <p>Acesso restrito a administradores</p>
             </div>
           </div>
         </div>

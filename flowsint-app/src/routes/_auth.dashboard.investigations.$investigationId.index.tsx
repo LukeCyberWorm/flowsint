@@ -1,3 +1,4 @@
+import { dossierService } from '@/api/dossier-service'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { investigationService } from '@/api/investigation-service'
 import { analysisService } from '@/api/analysis-service'
@@ -19,7 +20,9 @@ import {
   BarChart3,
   Clock,
   ChevronDown,
-  Waypoints
+  Waypoints,
+  MoreVertical,
+  Share
 } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -264,8 +267,38 @@ function InvestigationPage() {
                         }
                       })
                     }
-                    className="hover:shadow-lg py-4 transition-all duration-200 cursor-pointer group border hover:border-primary/20"
+                    className="hover:shadow-lg py-4 transition-all duration-200 cursor-pointer group border hover:border-primary/20 relative"
                   >
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-background/80 backdrop-blur-sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={async (e) => {
+                            e.stopPropagation()
+                            const toastId = toast.loading('Exporting to Dossier...')
+                            try {
+                              await dossierService.createDossier({
+                                case_number: `SKETCH-${sketch.id.substring(0, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`,
+                                title: `Sketch Export: ${sketch.title}`,
+                                description: `Exported from RSL Sketch. ${sketch.description || ''}`,
+                                investigation_id: investigation.id
+                              })
+                              toast.success('Successfully exported to Dossier', { id: toastId })
+                            } catch (error) {
+                              console.error(error)
+                              toast.error('Failed to export to Dossier', { id: toastId })
+                            }
+                          }}>
+                            <Share className="mr-2 h-4 w-4" />
+                            Export to Dossier
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                     <CardContent className="h-full flex flex-col">
                       {/* Header with title and count */}
                       <div className="flex items-start justify-between mb-3">

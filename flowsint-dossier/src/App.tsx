@@ -1,13 +1,31 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import DossierViewPage from './pages/DossierViewPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
+import TokenEntryPage from './pages/TokenEntryPage'
 
 function App() {
+  const hostname = window.location.hostname
+  const isAdmin = hostname.includes('adm-dossie') || hostname.includes('localhost') // Allow localhost for testing
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/dossier/:accessToken" element={<DossierViewPage />} />
+      {isAdmin ? (
+        <>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          {/* Fallback for admin routes */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
+      ) : (
+        <>
+          <Route path="/dossier/:accessToken" element={<DossierViewPage />} />
+          <Route path="/" element={<TokenEntryPage />} />
+          {/* Fallback for client routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
     </Routes>
   )
 }

@@ -103,4 +103,46 @@ export const dossierApi = {
     })
     return data
   },
+
+  // --- Admin Functions ---
+  
+  getAllDossiers: async (token: string): Promise<Dossier[]> => {
+    const { data } = await api.get('/dossiers', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return data
+  },
+
+  createDossier: async (token: string, dossierData: Partial<Dossier>): Promise<Dossier> => {
+    const { data } = await api.post('/dossiers', dossierData, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return data
+  },
+
+  updateDossier: async (token: string, id: string, dossierData: Partial<Dossier>): Promise<Dossier> => {
+    const { data } = await api.put(`/dossiers/${id}`, dossierData, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return data
+  },
+
+  createNote: async (token: string, dossierId: string, content: string, isPinned: boolean = false): Promise<DossierNote> => {
+    const { data } = await api.post(`/dossiers/${dossierId}/notes`, { content, is_pinned: isPinned }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return data
+  },
+
+  uploadFile: async (token: string, dossierId: string, file: File): Promise<DossierFile> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post(`/dossiers/${dossierId}/files`, formData, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return data
+  }
 }
