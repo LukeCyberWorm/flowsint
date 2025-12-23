@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, FileText, Shield, Plus, Upload, Save } from 'lucide-react'
+import { LogOut, FileText, Shield, Plus, Upload, Save, Search } from 'lucide-react'
 import { dossierApi, Dossier } from '../api/dossier'
 import { format } from 'date-fns'
 
@@ -94,6 +94,13 @@ export default function AdminDashboardPage() {
           >
             <FileText className="w-5 h-5" />
             <span>Dossiês</span>
+          </button>
+          <button
+            onClick={() => navigate('/rsl-search')}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-400 hover:bg-gray-800"
+          >
+            <Search className="w-5 h-5" />
+            <span>Busca RSL</span>
           </button>
           <button
             onClick={handleLogout}

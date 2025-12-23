@@ -1,11 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Search, Globe, Mail, Phone, User, Building2, Hash, MapPin, Calendar } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Globe, Mail, Phone, User, Building2, Hash, MapPin, Calendar, Car, Download, FilePlus, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { workApi } from '@/api/work-api'
+import { dossierService, Dossier } from '@/api/dossier-service'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_auth/dashboard/search')({
   component: SearchPage
@@ -21,11 +25,32 @@ interface SearchCategory {
 
 const searchCategories: SearchCategory[] = [
   {
-    id: 'domain',
-    name: 'Domínio',
-    icon: Globe,
-    description: 'Buscar informações sobre domínios e websites',
-    placeholder: 'exemplo.com'
+    id: 'cpf',
+    name: 'CPF',
+    icon: User,
+    description: 'Buscar dados completos por CPF',
+    placeholder: '000.000.000-00'
+  },
+  {
+    id: 'cnpj',
+    name: 'CNPJ',
+    icon: Building2,
+    description: 'Investigar empresas por CNPJ',
+    placeholder: '00.000.000/0000-00'
+  },
+  {
+    id: 'placa',
+    name: 'Veículo',
+    icon: Car,
+    description: 'Buscar dados de veículo por Placa',
+    placeholder: 'ABC-1234'
+  },
+  {
+    id: 'phone',
+    name: 'Telefone',
+    icon: Phone,
+    description: 'Pesquisar por número de telefone',
+    placeholder: '11999999999'
   },
   {
     id: 'email',
@@ -35,90 +60,132 @@ const searchCategories: SearchCategory[] = [
     placeholder: 'usuario@exemplo.com'
   },
   {
-    id: 'phone',
-    name: 'Telefone',
-    icon: Phone,
-    description: 'Pesquisar números de telefone',
-    placeholder: '+55 11 99999-9999'
-  },
-  {
-    id: 'person',
-    name: 'Pessoa',
+    id: 'nome',
+    name: 'Nome',
     icon: User,
-    description: 'Buscar informações sobre indivíduos',
+    description: 'Buscar por nome completo',
     placeholder: 'Nome completo'
-  },
-  {
-    id: 'company',
-    name: 'Empresa',
-    icon: Building2,
-    description: 'Investigar empresas e organizações',
-    placeholder: 'Nome da empresa'
-  },
-  {
-    id: 'ip',
-    name: 'Endereço IP',
-    icon: Hash,
-    description: 'Analisar endereços IP',
-    placeholder: '192.168.1.1'
-  },
-  {
-    id: 'location',
-    name: 'Localização',
-    icon: MapPin,
-    description: 'Buscar por endereços e localizações',
-    placeholder: 'Endereço completo'
-  },
-  {
-    id: 'date',
-    name: 'Data/Evento',
-    icon: Calendar,
-    description: 'Pesquisar eventos por data',
-    placeholder: 'DD/MM/AAAA'
   }
 ]
 
 function SearchPage() {
-  const [activeCategory, setActiveCategory] = useState('domain')
+  const [activeCategory, setActiveCategory] = useState('cpf')
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [error, setError] = useState('')
+  const [dossiers, setDossiers] = useState<Dossier[]>([])
+  const [selectedDossierId, setSelectedDossierId] = useState<string>('')
 
   const currentCategory = searchCategories.find((cat) => cat.id === activeCategory)
+
+  useEffect(() => {
+    fetchDossiers()
+  }, [])
+
+  const fetchDossiers = async () => {
+    try {
+      const data = await dossierService.getAllDossiers()
+      setDossiers(data)
+    } catch (error) {
+      console.error('Erro ao carregar dossiês:', error)
+    }
+  }
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
     
     setIsSearching(true)
-    // Aqui você implementará a lógica de busca
-    console.log('Buscando:', { category: activeCategory, query: searchQuery })
+    setError('')
+    setResult(null)
     
-    // Simulação de busca
-    setTimeout(() => {
+    try {
+      let response
+      switch (activeCategory) {
+        case 'cpf':
+          response = await workApi.searchCpf(searchQuery)
+          break
+        case 'cnpj':
+          response = await workApi.searchCnpj(searchQuery)
+          break
+        case 'placa':
+          response = await workApi.searchPlaca(searchQuery)
+          break
+        case 'phone':
+          response = await workApi.searchTelefone(searchQuery)
+          break
+        case 'email':
+          response = await workApi.searchEmail(searchQuery)
+          break
+        case 'nome':
+          response = await workApi.searchNome(searchQuery)
+          break
+        default:
+          throw new Error('Categoria inválida')
+      }
+      setResult(response.data)
+    } catch (err: any) {
+      console.error(err)
+      setError('Erro ao buscar dados. Verifique o termo ou tente novamente.')
+      toast.error('Erro na busca')
+    } finally {
       setIsSearching(false)
-    }, 1500)
+    }
+  }
+
+  const handleExportToCase = async () => {
+    if (!selectedDossierId || !result) {
+      toast.error('Selecione um caso e realize uma busca primeiro')
+      return
+    }
+
+    try {
+      const content = `## Resultado de Busca RSL (${activeCategory.toUpperCase()})\n\n**Termo:** ${searchQuery}\n**Data:** ${new Date().toLocaleString()}\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``
+      await dossierService.createNote(selectedDossierId, content)
+      toast.success('Dados exportados para o caso com sucesso!')
+    } catch (error) {
+      console.error(error)
+      toast.error('Erro ao exportar para o caso')
+    }
+  }
+
+  const handleDownloadJson = () => {
+    if (!result) return
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2))
+    const downloadAnchorNode = document.createElement('a')
+    downloadAnchorNode.setAttribute("href", dataStr)
+    downloadAnchorNode.setAttribute("download", `rsl_search_${activeCategory}_${searchQuery}.json`)
+    document.body.appendChild(downloadAnchorNode)
+    downloadAnchorNode.click()
+    downloadAnchorNode.remove()
   }
 
   return (
     <div className="h-full w-full overflow-auto bg-background">
       <div className="container mx-auto p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Painel de Buscas OSINT</h1>
-          <p className="text-muted-foreground">
-            Realize buscas avançadas em múltiplas fontes de inteligência
-          </p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 text-red-600">RSL Search Intelligence</h1>
+            <p className="text-muted-foreground">
+              Acesse bases de dados integradas em tempo real (Work Consultoria API)
+            </p>
+          </div>
+          <div className="flex gap-2">
+             {/* Actions Header */}
+          </div>
         </div>
 
         {/* Search Categories */}
-        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
-          <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-2 h-auto p-2">
+        <Tabs value={activeCategory} onValueChange={(val) => { setActiveCategory(val); setResult(null); setError(''); }} className="mb-6">
+          <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto p-2 bg-muted/50">
             {searchCategories.map((category) => {
               const Icon = category.icon
               return (
                 <TabsTrigger
                   key={category.id}
                   value={category.id}
-                  className="flex flex-col items-center gap-1 py-3"
+                  className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-red-600 data-[state=active]:text-white"
                 >
                   <Icon className="h-5 w-5" />
                   <span className="text-xs">{category.name}</span>
@@ -129,10 +196,10 @@ function SearchPage() {
 
           {/* Search Input Section */}
           <div className="mt-6">
-            <Card>
+            <Card className="border-red-900/20 bg-card/50 backdrop-blur">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  {currentCategory && <currentCategory.icon className="h-5 w-5" />}
+                  {currentCategory && <currentCategory.icon className="h-5 w-5 text-red-500" />}
                   <CardTitle>Buscar {currentCategory?.name}</CardTitle>
                 </div>
                 <CardDescription>{currentCategory?.description}</CardDescription>
@@ -144,103 +211,72 @@ function SearchPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="flex-1"
+                    className="flex-1 text-lg h-12"
                   />
-                  <Button onClick={handleSearch} disabled={isSearching}>
+                  <Button onClick={handleSearch} disabled={isSearching} className="h-12 px-8 bg-red-600 hover:bg-red-700">
                     <Search className="h-4 w-4 mr-2" />
-                    {isSearching ? 'Buscando...' : 'Buscar'}
+                    {isSearching ? 'Buscando...' : 'Pesquisar'}
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Results for each category */}
-          {searchCategories.map((category) => (
-            <TabsContent key={category.id} value={category.id} className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Resultados da Busca</CardTitle>
-                  <CardDescription>
-                    {searchQuery
-                      ? `Buscando "${searchQuery}" em ${category.name.toLowerCase()}`
-                      : 'Digite algo e clique em buscar para ver os resultados'}
-                  </CardDescription>
+          {/* Results Area */}
+          <div className="mt-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-lg flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                {error}
+              </div>
+            )}
+
+            {result && (
+              <Card className="border-red-900/20">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Resultados da Busca</CardTitle>
+                    <CardDescription>Dados retornados pela API</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={selectedDossierId} onValueChange={setSelectedDossierId}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Selecione um caso..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dossiers.map(d => (
+                          <SelectItem key={d.id} value={d.id}>{d.title || d.case_number}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" onClick={handleExportToCase} disabled={!selectedDossierId}>
+                      <FilePlus className="h-4 w-4 mr-2" />
+                      Exportar para Caso
+                    </Button>
+                    <Button variant="outline" onClick={handleDownloadJson}>
+                      <Download className="h-4 w-4 mr-2" />
+                      JSON
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  {searchQuery && !isSearching ? (
-                    <div className="space-y-4">
-                      {/* Exemplo de resultado - você substituirá isso com dados reais */}
-                      <div className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold">Exemplo de Resultado</h3>
-                          <Badge variant="outline">Verificado</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Esta é uma demonstração de como os resultados serão exibidos. 
-                          Integre com suas APIs e fontes de dados aqui.
-                        </p>
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge variant="secondary">Fonte: Demo</Badge>
-                          <Badge variant="secondary">Confiança: Alta</Badge>
-                        </div>
-                      </div>
-
-                      {/* Placeholder para mais resultados */}
-                      <div className="text-center p-8 text-muted-foreground">
-                        <p>Nenhum resultado adicional encontrado.</p>
-                        <p className="text-sm mt-2">
-                          Conecte suas ferramentas OSINT para obter resultados reais.
-                        </p>
-                      </div>
-                    </div>
-                  ) : isSearching ? (
-                    <div className="text-center p-8">
-                      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                      <p className="text-muted-foreground">Analisando fontes de dados...</p>
-                    </div>
-                  ) : (
-                    <div className="text-center p-8 text-muted-foreground">
-                      <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Insira um termo de busca para começar</p>
-                    </div>
-                  )}
+                  <div className="bg-muted/50 p-4 rounded-lg overflow-auto max-h-[600px]">
+                    <pre className="text-sm font-mono text-green-500 whitespace-pre-wrap">
+                      {JSON.stringify(result, null, 2)}
+                    </pre>
+                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
-
-        {/* Quick Actions / Tools */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Ferramentas Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="hover:border-primary transition-colors cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">WHOIS Lookup</CardTitle>
-                <CardDescription>Informações de registro de domínio</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="hover:border-primary transition-colors cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">DNS Lookup</CardTitle>
-                <CardDescription>Resolução de DNS e subdominios</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="hover:border-primary transition-colors cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">Social Search</CardTitle>
-                <CardDescription>Busca em redes sociais</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="hover:border-primary transition-colors cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-base">Breach Check</CardTitle>
-                <CardDescription>Verificar vazamentos de dados</CardDescription>
-              </CardHeader>
-            </Card>
+            )}
+            
+            {!result && !isSearching && !error && (
+              <div className="text-center p-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                <Search className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                <p>Selecione um módulo e faça uma busca para ver os resultados</p>
+              </div>
+            )}
           </div>
-        </div>
+        </Tabs>
       </div>
     </div>
   )

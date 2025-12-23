@@ -22,7 +22,10 @@ from app.api.routes import custom_types
 from app.api.routes import scarlet_ia
 from app.api.routes import face_recognition
 from app.api.routes import dossier
-from app.routes import vehicles
+from app.api.routes import work_api
+
+# Vehicles routes temporarily disabled (needs migration to app/api/routes/)
+# from app.routes import vehicles
 
 load_dotenv()
 
@@ -88,4 +91,5 @@ app.include_router(custom_types.router, prefix="/api/custom-types", tags=["custo
 app.include_router(scarlet_ia.router, prefix="/api/scarlet-ia", tags=["scarlet-ia"])
 app.include_router(face_recognition.router, prefix="/api/face-recognition", tags=["face-recognition"])
 app.include_router(dossier.router, prefix="/api/dossiers", tags=["dossiers"])
-app.include_router(vehicles.router, prefix="/api/vehicles", tags=["vehicles"])
+# app.include_router(vehicles.router, prefix="/api/vehicles", tags=["vehicles"])
+app.include_router(work_api.router, prefix="/api/work", tags=["work-api"])

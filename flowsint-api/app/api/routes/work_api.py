@@ -1,0 +1,185 @@
+"""
+Proxy para Work Consultoria API
+Este módulo serve como proxy para as APIs da Work Consultoria,
+resolvendo problemas de CORS no frontend.
+"""
+from fastapi import APIRouter, HTTPException
+from typing import Optional
+import httpx
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+router = APIRouter()
+
+WORK_API_BASE_URL = "https://api.workconsultoria.com/api/v1"
+WORK_API_TOKEN = os.getenv("WORK_API_TOKEN", "59a99dd05c40f3e0ea45e5b5e7ab37cd")
+
+
+async def get_work_api_headers() -> dict:
+    """Retorna os headers necessários para a Work API"""
+    return {
+        "Authorization": f"Bearer {WORK_API_TOKEN}",
+        "Accept": "application/json",
+    }
+
+
+@router.get("/cpf/{cpf}")
+async def search_cpf(cpf: str):
+    """
+    Busca informações de CPF via Work Consultoria API
+    """
+    try:
+        headers = await get_work_api_headers()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{WORK_API_BASE_URL}/cpf/{cpf}",
+                headers=headers
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="CPF não encontrado")
+            
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Erro na API Work: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Erro ao conectar com Work API: {str(e)}"
+        )
+
+
+@router.get("/cnpj/{cnpj}")
+async def search_cnpj(cnpj: str):
+    """
+    Busca informações de CNPJ via Work Consultoria API
+    """
+    try:
+        headers = await get_work_api_headers()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{WORK_API_BASE_URL}/cnpj/{cnpj}",
+                headers=headers
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="CNPJ não encontrado")
+            
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Erro na API Work: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Erro ao conectar com Work API: {str(e)}"
+        )
+
+
+@router.get("/telefone/{telefone}")
+async def search_telefone(telefone: str):
+    """
+    Busca informações de telefone via Work Consultoria API
+    """
+    try:
+        headers = await get_work_api_headers()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{WORK_API_BASE_URL}/telefone/{telefone}",
+                headers=headers
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Telefone não encontrado")
+            
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Erro na API Work: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Erro ao conectar com Work API: {str(e)}"
+        )
+
+
+@router.get("/veiculo/{placa}")
+async def search_veiculo(placa: str):
+    """
+    Busca informações de veículo via Work Consultoria API
+    """
+    try:
+        headers = await get_work_api_headers()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{WORK_API_BASE_URL}/veiculo/{placa}",
+                headers=headers
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Veículo não encontrado")
+            
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Erro na API Work: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Erro ao conectar com Work API: {str(e)}"
+        )
+
+
+@router.get("/email/{email}")
+async def search_email(email: str):
+    """
+    Busca informações de email via Work Consultoria API
+    """
+    try:
+        headers = await get_work_api_headers()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{WORK_API_BASE_URL}/email/{email}",
+                headers=headers
+            )
+            
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="Email não encontrado")
+            
+            response.raise_for_status()
+            return response.json()
+            
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Erro na API Work: {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Erro ao conectar com Work API: {str(e)}"
+        )
