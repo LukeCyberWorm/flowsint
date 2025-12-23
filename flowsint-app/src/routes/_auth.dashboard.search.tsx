@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Search, Globe, Mail, Phone, User, Building2, Hash, MapPin, Calendar, Car, Download, FilePlus, AlertCircle } from 'lucide-react'
+import { Search, Globe, Mail, Phone, User, Building2, Hash, MapPin, Calendar, Car, Download, FilePlus, AlertCircle, Copy, CreditCard, Briefcase, Home, FileText, DollarSign, Users } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { workApi } from '@/api/work-api'
 import { dossierService, Dossier } from '@/api/dossier-service'
 import { toast } from 'sonner'
@@ -232,41 +233,455 @@ function SearchPage() {
             )}
 
             {result && (
-              <Card className="border-red-900/20">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Resultados da Busca</CardTitle>
-                    <CardDescription>Dados retornados pela API</CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Select value={selectedDossierId} onValueChange={setSelectedDossierId}>
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Selecione um caso..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {dossiers.map(d => (
-                          <SelectItem key={d.id} value={d.id}>{d.title || d.case_number}</SelectItem>
+              <>
+                {/* Debug - remover depois */}
+                {console.log('Result data:', result)}
+                
+                {/* Dados Pessoais */}
+                {(result.dadosBasicos || result.nome || result.cpf) && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <User className="h-5 w-5 text-red-500" />
+                          <CardTitle>Dados Pessoais</CardTitle>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(searchQuery)}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Nome Completo</p>
+                          <p className="font-semibold text-lg">{result.dadosBasicos?.nome || result.nome || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">CPF</p>
+                          <p className="font-mono">{result.dadosBasicos?.cpf || result.cpf || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">CNS</p>
+                          <p className="font-mono">{result.dadosBasicos?.cns || result.cns || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Data de Nascimento</p>
+                          <p className="font-semibold">{result.dadosBasicos?.dataNascimento || result.dataNascimento || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Sexo</p>
+                          <p className="font-semibold">{result.dadosBasicos?.sexo || result.sexo || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Cor</p>
+                          <p className="font-semibold">{result.dadosBasicos?.cor || result.cor || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Mãe</p>
+                          <p className="font-semibold">{result.dadosBasicos?.nomeMae || result.nomeMae || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Pai</p>
+                          <p className="font-semibold">{result.dadosBasicos?.nomePai || result.nomePai || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Município de Nascimento</p>
+                          <p className="font-semibold">{result.dadosBasicos?.municipioNascimento || result.municipioNascimento || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Escolaridade</p>
+                          <p className="font-semibold">{result.dadosBasicos?.escolaridade || result.escolaridade || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Estado Civil</p>
+                          <p className="font-semibold">{result.dadosBasicos?.estadoCivil || result.estadoCivil || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Nacionalidade</p>
+                          <p className="font-semibold">{result.dadosBasicos?.nacionalidade || result.nacionalidade || 'N/A'}</p>
+                        </div>
+                      </div>
+                      
+                      {result.dadosBasicos.obito && (
+                        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4 text-red-500" />
+                            <p className="font-semibold text-red-500">Óbito: {result.dadosBasicos.obito.obito}</p>
+                            {result.dadosBasicos.obito.dataObito !== 'Não consta.' && (
+                              <p className="text-sm text-muted-foreground">Data: {result.dadosBasicos.obito.dataObito}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {result.dadosBasicos.situacaoCadastral && (
+                        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                          <p className="text-sm text-muted-foreground mb-1">Situação Cadastral</p>
+                          <p className="font-semibold">{result.dadosBasicos.situacaoCadastral}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Foto */}
+                {result.foto && result.foto.foto && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <User className="h-5 w-5 text-red-500" />
+                        <CardTitle>Imagem Cadastral</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex justify-center">
+                      <div className="w-48 h-48 bg-muted rounded-lg overflow-hidden border-2 border-red-900/20">
+                        <img src={result.foto.foto} alt="Foto Cadastral" className="w-full h-full object-cover" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Registro Geral (RG) */}
+                {result.registroGeral && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-red-500" />
+                        <CardTitle>Registro Geral</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">RG Número</p>
+                          <p className="font-semibold text-lg">{result.registroGeral || 'N/A'}</p>
+                        </div>
+                        {result.registroGeralDetalhes && (
+                          <>
+                            <div>
+                              <p className="text-sm text-muted-foreground mb-1">Órgão Emissor</p>
+                              <p className="font-semibold">{result.registroGeralDetalhes.orgaoEmissor || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground mb-1">UF Emissão</p>
+                              <p className="font-semibold">{result.registroGeralDetalhes.ufEmissao || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground mb-1">Data de Emissão</p>
+                              <p className="font-semibold">{result.registroGeralDetalhes.dataEmissao || 'N/A'}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Título de Eleitor */}
+                {result.tituloEleitor && result.tituloEleitor !== 'N/A' && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-red-500" />
+                        <CardTitle>Título de Eleitor</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Número do Título</p>
+                          <p className="font-mono text-lg">
+                            {typeof result.tituloEleitor === 'object' 
+                              ? (result.tituloEleitor.tituloEleitorNumero || 'N/A')
+                              : (result.tituloEleitor || 'N/A')}
+                          </p>
+                        </div>
+                        {(result.tituloEleitorDetalhes || typeof result.tituloEleitor === 'object') && (
+                          <>
+                            <div>
+                              <p className="text-sm text-muted-foreground mb-1">Zona</p>
+                              <p className="font-semibold">
+                                {typeof result.tituloEleitor === 'object' 
+                                  ? (result.tituloEleitor.zonaTitulo || 'N/A')
+                                  : (result.tituloEleitorDetalhes?.zona || 'N/A')}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground mb-1">Seção</p>
+                              <p className="font-semibold">
+                                {typeof result.tituloEleitor === 'object' 
+                                  ? (result.tituloEleitor.secaoTitulo || 'N/A')
+                                  : (result.tituloEleitorDetalhes?.secao || 'N/A')}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Endereços */}
+                {result.enderecos && result.enderecos.length > 0 && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-red-500" />
+                        <CardTitle>Endereços</CardTitle>
+                        <Badge variant="secondary">{result.enderecos.length}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {result.enderecos.map((end: any, idx: number) => (
+                          <div key={idx} className="p-4 bg-muted/50 rounded-lg">
+                            <p className="font-semibold text-lg mb-2">
+                              {end.logradouro}, {end.numero} {end.complemento && `- ${end.complemento}`}
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Bairro</p>
+                                <p className="font-medium">{end.bairro}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Cidade</p>
+                                <p className="font-medium">{end.cidade}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">UF</p>
+                                <p className="font-medium">{end.uf}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">CEP</p>
+                                <p className="font-mono">{end.cep}</p>
+                              </div>
+                            </div>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline" onClick={handleExportToCase} disabled={!selectedDossierId}>
-                      <FilePlus className="h-4 w-4 mr-2" />
-                      Exportar para Caso
-                    </Button>
-                    <Button variant="outline" onClick={handleDownloadJson}>
-                      <Download className="h-4 w-4 mr-2" />
-                      JSON
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted/50 p-4 rounded-lg overflow-auto max-h-[600px]">
-                    <pre className="text-sm font-mono text-green-500 whitespace-pre-wrap">
-                      {JSON.stringify(result, null, 2)}
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Telefones */}
+                {result.telefones && result.telefones.length > 0 && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-5 w-5 text-red-500" />
+                        <CardTitle>Telefones</CardTitle>
+                        <Badge variant="secondary">{result.telefones.length}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {result.telefones.map((tel: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-muted/50 rounded-lg flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <p className="font-mono font-semibold">{tel.telefone || tel}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Dados Econômicos */}
+                {result.dadosEconomicos && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-red-500" />
+                        <CardTitle>Dados Econômicos</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Renda Estimada</p>
+                          <p className="font-semibold text-2xl text-green-500">{result.dadosEconomicos.rendaEstimada || result.dadosEconomicos}</p>
+                        </div>
+                        {result.dadosEconomicos.poderAquisitivo && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Poder Aquisitivo</p>
+                            <p className="font-semibold">{result.dadosEconomicos.poderAquisitivo}</p>
+                          </div>
+                        )}
+                        {result.dadosEconomicos.faixaRenda && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Faixa de Renda</p>
+                            <p className="font-semibold">{result.dadosEconomicos.faixaRenda}</p>
+                          </div>
+                        )}
+                        {result.dadosEconomicos.scoreCSB && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Score CSB</p>
+                            <p className="font-semibold text-xl">{result.dadosEconomicos.scoreCSB}</p>
+                          </div>
+                        )}
+                        {result.dadosEconomicos.faixaRiscoCSB && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Faixa de Risco CSB</p>
+                            <Badge variant="outline">{result.dadosEconomicos.faixaRiscoCSB}</Badge>
+                          </div>
+                        )}
+                        {result.dadosEconomicos.scoreCsba && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Score CSBA</p>
+                            <p className="font-semibold text-xl">{result.dadosEconomicos.scoreCsba}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {result.dadosEconomicos.score && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-semibold">Score</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-3xl font-bold text-yellow-500">{result.dadosEconomicos.score}</p>
+                              <Badge className="bg-yellow-500">Bom</Badge>
+                            </div>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full transition-all"
+                              style={{ width: `${(parseInt(result.dadosEconomicos.score) / 1000) * 100}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>0</span>
+                            <span>500</span>
+                            <span>1000</span>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Dados de Imposto */}
+                {result.dadosImposto && result.dadosImposto.length > 0 && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-red-500" />
+                        <CardTitle>Dados Imposto</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {result.dadosImposto.map((imposto: any, idx: number) => (
+                          <div key={idx} className="p-4 bg-muted/50 rounded-lg">
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">CPF</p>
+                                <p className="font-mono font-semibold">{imposto.cpf}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Banco</p>
+                                <p className="font-medium">{imposto.banco}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Agência</p>
+                                <p className="font-mono">{imposto.agencia}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Lote</p>
+                                <p className="font-mono">{imposto.lote}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Ano</p>
+                                <p className="font-semibold">{imposto.ano}</p>
+                              </div>
+                            </div>
+                            {imposto.dataLote && (
+                              <div className="mt-2">
+                                <p className="text-xs text-muted-foreground">Data do Lote: {imposto.dataLote}</p>
+                              </div>
+                            )}
+                            <div className="mt-2">
+                              <Badge variant={imposto.status === 'CREDITADA' ? 'default' : 'destructive'}>
+                                {imposto.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Empresas */}
+                {result.empresas && result.empresas.length > 0 && result.empresas !== "Nenhum dado encontrado." && (
+                  <Card className="border-red-900/20 mb-4">
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-red-500" />
+                        <CardTitle>Empresas</CardTitle>
+                        <Badge variant="secondary">{result.empresas.length}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {result.empresas.map((empresa: any, idx: number) => (
+                          <div key={idx} className="p-4 bg-muted/50 rounded-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <p className="text-muted-foreground text-sm">CNPJ</p>
+                                <p className="font-mono font-semibold">{empresa.cnpj}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground text-sm">Tipo Relação</p>
+                                <p className="font-medium">{empresa.tipoRelacao}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground text-sm">Admissão</p>
+                                <p className="font-semibold">{empresa.admissao}</p>
+                              </div>
+                              {empresa.demissao && (
+                                <div>
+                                  <p className="text-muted-foreground text-sm">Demissão</p>
+                                  <p className="font-semibold">{empresa.demissao}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Botões de Ação */}
+                <Card className="border-red-900/20 sticky bottom-4 bg-card/95 backdrop-blur">
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-2 items-center justify-between">
+                      <Select value={selectedDossierId} onValueChange={setSelectedDossierId}>
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="Selecione um caso..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {dossiers.map(d => (
+                            <SelectItem key={d.id} value={d.id}>{d.title || d.case_number}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={handleExportToCase} disabled={!selectedDossierId}>
+                          <FilePlus className="h-4 w-4 mr-2" />
+                          Exportar para Caso
+                        </Button>
+                        <Button variant="outline" onClick={handleDownloadJson}>
+                          <Download className="h-4 w-4 mr-2" />
+                          Baixar JSON
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
             
             {!result && !isSearching && !error && (

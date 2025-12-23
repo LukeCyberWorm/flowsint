@@ -13,16 +13,17 @@ load_dotenv()
 
 router = APIRouter()
 
-WORK_API_BASE_URL = "https://api.workconsultoria.com/api/v1"
-WORK_API_TOKEN = os.getenv("WORK_API_TOKEN", "59a99dd05c40f3e0ea45e5b5e7ab37cd")
+WORK_API_BASE_URL = "https://api.workconsultoria.com/api/v1/consults/gate_1"
 
-
-async def get_work_api_headers() -> dict:
-    """Retorna os headers necessários para a Work API"""
-    return {
-        "Authorization": f"Bearer {WORK_API_TOKEN}",
-        "Accept": "application/json",
-    }
+# Headers de autenticação da Work API
+WORK_API_HEADERS = {
+    "access-token": "ASuQzmqTtELCFFZ1n-cf5A",
+    "client": "Li0q0j0gkv34Yi0VrWKtmQ",
+    "expiry": "1766545120",
+    "token-type": "Bearer",
+    "uid": "lukecyberworm",
+    "Accept": "application/json",
+}
 
 
 @router.get("/cpf/{cpf}")

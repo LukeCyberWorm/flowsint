@@ -59,13 +59,13 @@ class DossierResponse(DossierBase):
     investigation_id: UUID
     case_number: str
     status: DossierStatus
-    assigned_to: Optional[UUID]
+    assigned_to: Optional[UUID] = None
     is_public: bool
-    access_token: Optional[str]
-    created_at: datetime
-    updated_at: datetime
-    created_by: UUID
-    updated_by: Optional[UUID]
+    access_token: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    created_by: Optional[UUID] = None
+    updated_by: Optional[UUID] = None
     
     class Config:
         from_attributes = True
