@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -32,7 +32,7 @@ export default function DossierViewPage() {
   const password = searchParams.get('password') || undefined
 
   const [selectedSection, setSelectedSection] = useState<string>('overview')
-  const [activeSubject, setActiveSubject] = useState<'pedro' | 'afonso'>('pedro')
+  const [activeSubject, setActiveSubject] = useState<string>('pedro')
 
   // Fetch dossier data
   const {
@@ -44,6 +44,12 @@ export default function DossierViewPage() {
     queryFn: () => dossierApi.accessDossier(accessToken!, password),
     enabled: !!accessToken,
   })
+
+  useEffect(() => {
+    if (dossier?.case_number === 'INV-2025-1222-001') {
+      setActiveSubject('tiago')
+    }
+  }, [dossier])
 
   // Fetch files
   const { data: files = [], isLoading: filesLoading } = useQuery<DossierFile[]>({
@@ -85,6 +91,11 @@ export default function DossierViewPage() {
   const getSubject = (content: string = '', filename: string = '') => {
     const text = (content + filename).toLowerCase()
     
+    if (dossier?.case_number === 'INV-2025-1222-001') {
+      if (text.includes('joelma') || filename.includes('joelma')) return 'joelma'
+      return 'tiago'
+    }
+
     // Explicit checks for Afonso
     if (text.includes('afonso henrique') || 
         text.includes('afonso lagoeiro') || 
@@ -118,7 +129,9 @@ export default function DossierViewPage() {
            getSubject('', f.file_name) === activeSubject
   )
 
-  const subjectName = activeSubject === 'pedro' ? 'Pedro Henrique Ferreira Dutra' : 'Afonso Henrique Lagoeiro Dutra'
+  const subjectName = dossier?.case_number === 'INV-2025-1222-001'
+    ? (activeSubject === 'tiago' ? 'Tiago Ferreira Paulo' : 'Joelma Ribeiro de Morais Pinto')
+    : (activeSubject === 'pedro' ? 'Pedro Henrique Ferreira Dutra' : 'Afonso Henrique Lagoeiro Dutra')
 
   if (dossierLoading) {
     return (
@@ -180,26 +193,53 @@ export default function DossierViewPage() {
         {/* Subject Switcher */}
         <div className="flex justify-center mb-8">
           <div className="bg-[#111] p-1 rounded-lg border border-[#222] inline-flex">
-            <button
-              onClick={() => setActiveSubject('pedro')}
-              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                activeSubject === 'pedro'
-                  ? 'bg-[#d72638] text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-[#222]'
-              }`}
-            >
-              Pedro Henrique
-            </button>
-            <button
-              onClick={() => setActiveSubject('afonso')}
-              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                activeSubject === 'afonso'
-                  ? 'bg-[#d72638] text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-[#222]'
-              }`}
-            >
-              Afonso Henrique
-            </button>
+            {dossier?.case_number === 'INV-2025-1222-001' ? (
+              <>
+                <button
+                  onClick={() => setActiveSubject('tiago')}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeSubject === 'tiago'
+                      ? 'bg-[#d72638] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white hover:bg-[#222]'
+                  }`}
+                >
+                  Tiago Ferreira Paulo
+                </button>
+                <button
+                  onClick={() => setActiveSubject('joelma')}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeSubject === 'joelma'
+                      ? 'bg-[#d72638] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white hover:bg-[#222]'
+                  }`}
+                >
+                  Joelma Ribeiro
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setActiveSubject('pedro')}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeSubject === 'pedro'
+                      ? 'bg-[#d72638] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white hover:bg-[#222]'
+                  }`}
+                >
+                  Pedro Henrique
+                </button>
+                <button
+                  onClick={() => setActiveSubject('afonso')}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeSubject === 'afonso'
+                      ? 'bg-[#d72638] text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white hover:bg-[#222]'
+                  }`}
+                >
+                  Afonso Henrique
+                </button>
+              </>
+            )}
           </div>
         </div>
 

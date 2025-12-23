@@ -1,0 +1,76 @@
+# Exemplo de Request HTTP - Consulta CPF
+
+### Login/Autenticação
+POST https://app.workconsultoria.com/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "LukeCyberWorm",
+  "password": "@Lcw25257946"
+}
+
+### Resposta Login (EXEMPLO - PREENCHER COM DADOS REAIS)
+# {
+#   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "user": {
+#     "id": 123,
+#     "username": "LukeCyberWorm"
+#   }
+# }
+
+###
+
+### Consulta CPF (EXEMPLO - PREENCHER COM DADOS REAIS)
+POST https://app.workconsultoria.com/api/consulta/cpf
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cpf": "12345678900"
+}
+
+### Resposta CPF (EXEMPLO - PREENCHER COM DADOS REAIS)
+# {
+#   "success": true,
+#   "data": {
+#     "cpf": "123.456.789-00",
+#     "nome": "João da Silva",
+#     "nascimento": "01/01/1990",
+#     "situacao": "Regular"
+#   }
+# }
+
+###
+
+### Consulta CNPJ (EXEMPLO - PREENCHER COM DADOS REAIS)
+POST https://app.workconsultoria.com/api/consulta/cnpj
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cnpj": "12345678000100"
+}
+
+###
+
+### Consulta Telefone (EXEMPLO - PREENCHER COM DADOS REAIS)
+POST https://app.workconsultoria.com/api/consulta/telefone
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "telefone": "11999999999"
+}
+
+###
+
+### Consulta Veículo (EXEMPLO - PREENCHER COM DADOS REAIS)
+POST https://app.workconsultoria.com/api/consulta/veiculo
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "placa": "ABC1234"
+}
+
+###

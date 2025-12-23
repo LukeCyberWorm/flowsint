@@ -1,0 +1,169 @@
+[
+  {
+    "module": "placa",
+    "param": "placa=ABC1234",
+    "timestamp": "2025-12-22T17:21:23.615946",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/placa/?placa=ABC1234",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/placa/ABC1234",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "placa_veicular",
+    "param": "placa=ABC1234",
+    "timestamp": "2025-12-22T17:21:25.120556",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/placa_veicular/?placa=ABC1234",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/placa_veicular/ABC1234",
+        "status_code": 500,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "chassi",
+    "param": "chassi=9BWZZZ377VT004251",
+    "timestamp": "2025-12-22T17:21:26.822885",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/chassi/?chassi=9BWZZZ377VT004251",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/chassi/9BWZZZ377VT004251",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "renavam",
+    "param": "renavam=12345678901",
+    "timestamp": "2025-12-22T17:21:28.154543",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/renavam/?renavam=12345678901",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/renavam/12345678901",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "renach",
+    "param": "renach=12345678901",
+    "timestamp": "2025-12-22T17:21:29.480165",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/renach/?renach=12345678901",
+        "error": "The read operation timed out",
+        "success": false
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/renach/12345678901",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "condutor",
+    "param": "cpf=04151107690",
+    "timestamp": "2025-12-22T17:21:40.598185",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/condutor/?cpf=04151107690",
+        "error": "The read operation timed out",
+        "success": false
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/condutor/04151107690",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "proprietario",
+    "param": "cpf=04151107690",
+    "timestamp": "2025-12-22T17:21:51.688082",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/proprietario/?cpf=04151107690",
+        "status_code": 200,
+        "success": true,
+        "response": null,
+        "response_size": 4
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/proprietario/04151107690",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  },
+  {
+    "module": "vistoria_veicular",
+    "param": "placa=ABC1234",
+    "timestamp": "2025-12-22T17:21:53.249866",
+    "tests": [
+      {
+        "method": "query_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/vistoria_veicular/?placa=ABC1234",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      },
+      {
+        "method": "path_parameter",
+        "url": "https://api.workconsultoria.com/api/v1/consults/gate_1/vistoria_veicular/ABC1234",
+        "status_code": 404,
+        "success": false,
+        "error": ""
+      }
+    ]
+  }
+]

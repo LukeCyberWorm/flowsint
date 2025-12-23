@@ -1,21 +1,72 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { BookOpen, Zap, Shield, Database, Workflow, Search, Key, Users } from 'lucide-react'
+import { BookOpen, Zap, Shield, Database, Workflow, Search, Key, Users, Download } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_auth/dashboard/docs')({
   component: DocsPage
 })
 
 function DocsPage() {
+  const handleDownloadPDF = () => {
+    // Criar conteúdo do PDF com a documentação
+    const printWindow = window.open('', '', 'height=600,width=800')
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>RSL-Scarlet Documentation</title>')
+      printWindow.document.write('<style>')
+      printWindow.document.write(`
+        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #dc2638; border-bottom: 3px solid #dc2638; padding-bottom: 10px; }
+        h2 { color: #ff4b5c; margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        h3 { color: #333; margin-top: 20px; }
+        p { line-height: 1.6; color: #444; }
+        .section { margin-bottom: 30px; }
+        .feature-box { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+      `)
+      printWindow.document.write('</style></head><body>')
+      
+      // Copiar o conteúdo da documentação
+      const docContent = document.querySelector('.container')
+      if (docContent) {
+        // Remove botão de download antes de copiar
+        const clonedContent = docContent.cloneNode(true) as HTMLElement
+        const downloadBtn = clonedContent.querySelector('.download-pdf-btn')
+        if (downloadBtn) downloadBtn.remove()
+        
+        printWindow.document.write(clonedContent.innerHTML)
+      }
+      
+      printWindow.document.write('</body></html>')
+      printWindow.document.close()
+      
+      // Esperar carregar e então imprimir
+      printWindow.onload = () => {
+        printWindow.print()
+        printWindow.close()
+      }
+    }
+  }
+
   return (
     <div className="h-full w-full bg-background overflow-y-auto">
       <div className="container mx-auto py-8 px-4 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#ff4b5c] to-[#d72638] bg-clip-text text-transparent">
-            Red Shadow Link (RSL-Scarlet)
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Plataforma OSINT completa da Scarlet Red Solutions
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#ff4b5c] to-[#d72638] bg-clip-text text-transparent">
+              Red Shadow Link (RSL-Scarlet)
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Plataforma OSINT completa da Scarlet Red Solutions
+            </p>
+          </div>
+          <Button 
+            onClick={handleDownloadPDF}
+            className="download-pdf-btn bg-[#dc2638] hover:bg-[#c01f2f] text-white flex items-center gap-2"
+            size="default"
+          >
+            <Download className="h-4 w-4" />
+            Baixar PDF
+          </Button>
         </div>
 
       {/* Introdução */}

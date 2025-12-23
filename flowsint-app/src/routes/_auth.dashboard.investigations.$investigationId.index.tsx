@@ -28,6 +28,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import NewSketch from '@/components/graphs/new-sketch'
+import { AddEntityModal } from '@/components/investigations/AddEntityModal'
 
 function InvestigationSkeleton() {
   return (
@@ -132,6 +133,7 @@ function InvestigationPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <AddEntityModal investigationId={investigation.id} />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div>
