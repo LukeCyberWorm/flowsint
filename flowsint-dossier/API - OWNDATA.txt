@@ -1,0 +1,33 @@
+🔑 Gerenciar Token
+
+🔒 Token: HhsbkqwwpEJIhEZPQGAPOjmC
+📛 Nome: LukeCyberWorm
+🟢 Status: Ativo
+💳 Valor Mensal: R$ 450,00
+🧩 Módulos: tel,cpf,nome,email,titulo,cep,mae,cnpj
+📈 Limite de Requisições: 15.000
+📅 Data de Expiração: 26/01/2026
+
+Documentação da APi - OwnData
+Introdução
+Esta documentação detalha como você pode integrar e consultar informações através da API OwnData em seus projetos. Como um benefício exclusivo, o acesso à API OwnData é concedido como um brinde para qualquer compra de token em nossa plataforma. Todas as requisições devem ser feitas usando o método GET e os dados são retornados em formato JSON, garantindo uma integração fácil e rápida.
+Autenticação
+Para acessar a API e realizar suas consultas, você precisará de um token de autenticação. Ele deve ser incluído em todas as suas requisições para que a API possa processar seu pedido.
+Estrutura da Requisição https://completa.workbuscas.com/api?token={TOKEN}&modulo={MODULO}&consulta={PARAMETRO}
+Módulos Disponíveis
+● cpf
+● phone (telefone)
+● name
+● mail
+● title (título de eleitor)
+● cep
+● mother
+● cnpj
+Como Funciona na Prática
+Ao preencher sua URL com os parâmetros token, modulo e consulta, e realizar uma requisição GET para o endpoint da API, você receberá uma resposta em formato JSON contendo os dados correspondentes à sua busca.
+Exemplo Prático de Consulta de CPF:
+Para buscar detalhes sobre um CPF específico, sua requisição seria exatamente esta: https://completa.workbuscas.com/api?token=SEU_TOKEN&modulo=cpf&consulta=12345678910
+Considerações Finais
+● A disponibilidade dos dados pode variar, e as respostas refletiram essa disponibilidade.
+● Nunca exponha seu token diretamente no código front-end (lado do cliente) de seu projeto.
+● É crucial utilizar um token válido em todas as requisições para garantir o acesso à API.

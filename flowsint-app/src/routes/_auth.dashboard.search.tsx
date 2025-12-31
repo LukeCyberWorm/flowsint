@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { ownDataApi } from '@/api/owndata-api'
 import { workApi } from '@/api/work-api'
 import { dossierService, Dossier } from '@/api/dossier-service'
 import { toast } from 'sonner'
@@ -72,6 +73,7 @@ const searchCategories: SearchCategory[] = [
 function SearchPage() {
   const [activeCategory, setActiveCategory] = useState('cpf')
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchSource, setSearchSource] = useState<'work' | 'owndata'>('work') // BUSCA COMPLETA ou DEEPFINDER
   const [isSearching, setIsSearching] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
@@ -79,6 +81,72 @@ function SearchPage() {
   const [selectedDossierId, setSelectedDossierId] = useState<string>('')
 
   const currentCategory = searchCategories.find((cat) => cat.id === activeCategory)
+
+  // Função para normalizar dados da OwnData para o formato da Work API
+  const normalizeOwnDataResponse = (data: any) => {
+    if (!data || typeof data !== 'object') return data
+
+    // Se já estiver no formato correto, retorna
+    if (data.dadosBasicos || data.nome || data.cpf) return data
+
+    // Normaliza estrutura de dados da OwnData
+    const normalized: any = {}
+
+    // Dados pessoais - SEMPRE converter para string
+    if (data.NOME || data.CPF) {
+      normalized.dadosBasicos = {
+        nome: String(data.NOME || data.nome || ''),
+        cpf: String(data.CPF || data.cpf || ''),
+        dataNascimento: String(data.DATA_NASCIMENTO || data.dataNascimento || ''),
+        sexo: String(data.SEXO || data.sexo || ''),
+        nomeMae: String(data.NOME_MAE || data.nomeMae || data.mae || ''),
+        nomePai: String(data.NOME_PAI || data.nomePai || data.pai || ''),
+        municipioNascimento: String(data.MUNICIPIO_NASCIMENTO || data.municipioNascimento || ''),
+        nacionalidade: String(data.NACIONALIDADE || data.nacionalidade || 'BRASILEIRA'),
+      }
+    }
+
+    // Foto
+    if (data.FOTO || data.foto) {
+      normalized.foto = {
+        foto: data.FOTO || data.foto
+      }
+    }
+
+    // Endereços - SEMPRE converter para string
+    if (data.ENDERECOS || data.enderecos) {
+      const enderecos = data.ENDERECOS || data.enderecos
+      normalized.enderecos = Array.isArray(enderecos) ? enderecos.map((end: any) => ({
+        logradouro: String(end.LOGRADOURO || end.logradouro || ''),
+        numero: String(end.NUMERO || end.numero || ''),
+        complemento: String(end.COMPLEMENTO || end.complemento || ''),
+        bairro: String(end.BAIRRO || end.bairro || ''),
+        cidade: String(end.CIDADE || end.cidade || end.municipio || ''),
+        uf: String(end.UF || end.uf || ''),
+        cep: String(end.CEP || end.cep || '')
+      })) : []
+    }
+
+    // Telefones - SEMPRE converter para string
+    if (data.TELEFONES || data.telefones) {
+      const telefones = data.TELEFONES || data.telefones
+      normalized.telefones = Array.isArray(telefones) ? telefones.map((tel: any) => ({
+        telefone: String(tel.TELEFONE || tel.telefone || tel || '')
+      })) : []
+    }
+
+    // Título de eleitor - SEMPRE converter para string
+    if (data.TITULO_ELEITOR || data.tituloEleitor) {
+      normalized.tituloEleitor = {
+        tituloEleitorNumero: String(data.TITULO_ELEITOR || data.tituloEleitor || ''),
+        zonaTitulo: String(data.ZONA || data.zona || ''),
+        secaoTitulo: String(data.SECAO || data.secao || '')
+      }
+    }
+
+    // Se tiver dados normalizados, retorna, senão retorna original
+    return Object.keys(normalized).length > 0 ? normalized : data
+  }
 
   useEffect(() => {
     fetchDossiers()
@@ -102,29 +170,83 @@ function SearchPage() {
     
     try {
       let response
-      switch (activeCategory) {
-        case 'cpf':
-          response = await workApi.searchCpf(searchQuery)
-          break
-        case 'cnpj':
-          response = await workApi.searchCnpj(searchQuery)
-          break
-        case 'placa':
-          response = await workApi.searchPlaca(searchQuery)
-          break
-        case 'phone':
-          response = await workApi.searchTelefone(searchQuery)
-          break
-        case 'email':
-          response = await workApi.searchEmail(searchQuery)
-          break
-        case 'nome':
-          response = await workApi.searchNome(searchQuery)
-          break
-        default:
-          throw new Error('Categoria inválida')
+      
+      // Escolher API baseada na fonte selecionada
+      if (searchSource === 'work') {
+        // BUSCA COMPLETA - Work API
+        switch (activeCategory) {
+          case 'cpf':
+            response = await workApi.searchCpf(searchQuery)
+            break
+          case 'cnpj':
+            response = await workApi.searchCnpj(searchQuery)
+            break
+          case 'placa':
+            response = await workApi.searchPlaca(searchQuery)
+            break
+          case 'phone':
+            response = await workApi.searchTelefone(searchQuery)
+            break
+          case 'email':
+            response = await workApi.searchEmail(searchQuery)
+            break
+          case 'nome':
+            response = await workApi.searchNome(searchQuery)
+            break
+          default:
+            throw new Error('Categoria inválida')
+        }
+      } else {
+        // DEEPFINDER - OwnData API
+        switch (activeCategory) {
+          case 'cpf':
+            response = await ownDataApi.searchCpf(searchQuery)
+            break
+          case 'cnpj':
+            response = await ownDataApi.searchCnpj(searchQuery)
+            break
+          case 'placa':
+            toast.error('Busca por placa não está disponível no DEEPFINDER')
+            setIsSearching(false)
+            return
+          case 'phone':
+            response = await ownDataApi.searchTelefone(searchQuery)
+            break
+          case 'email':
+            response = await ownDataApi.searchEmail(searchQuery)
+            break
+          case 'nome':
+            response = await ownDataApi.searchNome(searchQuery)
+            break
+          default:
+            throw new Error('Categoria inválida')
+        }
       }
-      setResult(response.data)
+      
+      console.log('Result data:', response)
+      
+      if (response.success) {
+        console.log('Setting result:', response.data)
+        
+        // Verificar se há dados reais ou se é um 404 (sem dados encontrados)
+        if (response.data?.status === 404 || response.data?.statusMsg === 'Not found') {
+          setResult(null)
+          setError(response.data?.reason || 'Nenhum dado encontrado para esta consulta')
+          toast.warning('Nenhum dado encontrado na base de dados para esta consulta')
+        } else {
+          // Se for OwnData, normaliza os dados para o formato da Work API
+          const normalizedData = searchSource === 'owndata' 
+            ? normalizeOwnDataResponse(response.data) 
+            : response.data
+          
+          setResult(normalizedData)
+          toast.success('Busca realizada com sucesso!')
+        }
+      } else {
+        console.log('Error response:', response.error)
+        setError(response.error || 'Erro ao buscar dados')
+        toast.error(response.error || 'Erro na busca')
+      }
     } catch (err: any) {
       console.error(err)
       setError('Erro ao buscar dados. Verifique o termo ou tente novamente.')
@@ -169,13 +291,74 @@ function SearchPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2 text-red-600">RSL Search Intelligence</h1>
             <p className="text-muted-foreground">
-              Acesse bases de dados integradas em tempo real (Work Consultoria API)
+              Escolha a fonte de dados e realize buscas integradas em tempo real
             </p>
           </div>
           <div className="flex gap-2">
              {/* Actions Header */}
           </div>
         </div>
+
+        {/* Data Source Selection */}
+        <Card className="mb-6 border-red-900/20 bg-card/50 backdrop-blur">
+          <CardHeader>
+            <CardTitle className="text-lg">Fonte de Dados</CardTitle>
+            <CardDescription>Selecione qual base de dados deseja utilizar</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setSearchSource('work')}
+                className={`p-6 rounded-lg border-2 transition-all ${
+                  searchSource === 'work'
+                    ? 'border-red-600 bg-red-600/10 shadow-lg'
+                    : 'border-muted hover:border-red-600/50'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Globe className="h-6 w-6 text-red-600" />
+                  <h3 className="text-xl font-bold">BUSCA COMPLETA</h3>
+                </div>
+                <p className="text-sm text-muted-foreground text-left">
+                  Base de dados Work Consultoria com informações detalhadas e atualizadas
+                </p>
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <Badge variant="outline" className="text-xs">CPF</Badge>
+                  <Badge variant="outline" className="text-xs">CNPJ</Badge>
+                  <Badge variant="outline" className="text-xs">Telefone</Badge>
+                  <Badge variant="outline" className="text-xs">Email</Badge>
+                  <Badge variant="outline" className="text-xs">Placa</Badge>
+                  <Badge variant="outline" className="text-xs">Nome</Badge>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setSearchSource('owndata')}
+                className={`p-6 rounded-lg border-2 transition-all ${
+                  searchSource === 'owndata'
+                    ? 'border-blue-600 bg-blue-600/10 shadow-lg'
+                    : 'border-muted hover:border-blue-600/50'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Search className="h-6 w-6 text-blue-600" />
+                  <h3 className="text-xl font-bold">DEEPFINDER</h3>
+                </div>
+                <p className="text-sm text-muted-foreground text-left">
+                  Base de dados OwnData com consultas alternativas
+                </p>
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <Badge variant="outline" className="text-xs">CPF</Badge>
+                  <Badge variant="outline" className="text-xs">CNPJ</Badge>
+                  <Badge variant="outline" className="text-xs">Telefone</Badge>
+                  <Badge variant="outline" className="text-xs">Email</Badge>
+                  <Badge variant="outline" className="text-xs">Nome</Badge>
+                  <Badge variant="outline" className="text-xs">CEP</Badge>
+                </div>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Search Categories */}
         <Tabs value={activeCategory} onValueChange={(val) => { setActiveCategory(val); setResult(null); setError(''); }} className="mb-6">

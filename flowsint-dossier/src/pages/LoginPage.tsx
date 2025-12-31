@@ -113,7 +113,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 text-center text-sm text-gray-500">
-              <p>Acesso restrito a administradores</p>
+              <p>Acesso restrito - Apenas contas autorizadas</p>
             </div>
           </div>
         </div>

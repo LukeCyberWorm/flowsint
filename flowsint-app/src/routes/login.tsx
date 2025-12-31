@@ -172,13 +172,10 @@ function Login() {
           </form>
         </FormProvider>
 
-        {/* Link to registration */}
+        {/* Acesso restrito */}
         <div className="text-center mt-4">
-          <p className="text-sm text-gray-300">
-            Ainda não tem uma conta?{' '}
-            <Link to="/register" className="font-medium text-primary">
-              Cadastre-se
-            </Link>
+          <p className="text-sm text-gray-500">
+            Acesso restrito - Apenas contas autorizadas
           </p>
         </div>
       </div>

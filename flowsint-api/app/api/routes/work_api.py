@@ -32,12 +32,10 @@ async def search_cpf(cpf: str):
     Busca informações de CPF via Work Consultoria API
     """
     try:
-        headers = await get_work_api_headers()
-        
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{WORK_API_BASE_URL}/cpf/{cpf}",
-                headers=headers
+                headers=WORK_API_HEADERS
             )
             
             if response.status_code == 404:
@@ -64,12 +62,10 @@ async def search_cnpj(cnpj: str):
     Busca informações de CNPJ via Work Consultoria API
     """
     try:
-        headers = await get_work_api_headers()
-        
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{WORK_API_BASE_URL}/cnpj/{cnpj}",
-                headers=headers
+                headers=WORK_API_HEADERS
             )
             
             if response.status_code == 404:
@@ -96,12 +92,10 @@ async def search_telefone(telefone: str):
     Busca informações de telefone via Work Consultoria API
     """
     try:
-        headers = await get_work_api_headers()
-        
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{WORK_API_BASE_URL}/telefone/{telefone}",
-                headers=headers
+                headers=WORK_API_HEADERS
             )
             
             if response.status_code == 404:
@@ -128,12 +122,10 @@ async def search_veiculo(placa: str):
     Busca informações de veículo via Work Consultoria API
     """
     try:
-        headers = await get_work_api_headers()
-        
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{WORK_API_BASE_URL}/veiculo/{placa}",
-                headers=headers
+                headers=WORK_API_HEADERS
             )
             
             if response.status_code == 404:
@@ -160,12 +152,10 @@ async def search_email(email: str):
     Busca informações de email via Work Consultoria API
     """
     try:
-        headers = await get_work_api_headers()
-        
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{WORK_API_BASE_URL}/email/{email}",
-                headers=headers
+                headers=WORK_API_HEADERS
             )
             
             if response.status_code == 404:

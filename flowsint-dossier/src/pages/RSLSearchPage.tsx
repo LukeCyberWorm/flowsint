@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Shield, Menu, Bell, Settings, LogOut, Database, User, Car, Phone, Mail, FileText } from 'lucide-react'
-import { workApi } from '../api/workApi'
+import { Search, Shield, Menu, Bell, Settings, LogOut, Database, User, Phone, Mail, FileText } from 'lucide-react'
+import { ownDataApi } from '../api/ownDataApi'
 
-type SearchModule = 'cpf' | 'cnpj' | 'placa' | 'phone' | 'email' | 'nome'
+type SearchModule = 'cpf' | 'cnpj' | 'phone' | 'email' | 'nome'
 
 export default function RSLSearchPage() {
   const navigate = useNavigate()
@@ -25,25 +25,27 @@ export default function RSLSearchPage() {
       let response
       switch (module) {
         case 'cpf':
-          response = await workApi.searchCpf(query)
+          response = await ownDataApi.searchCpf(query)
           break
         case 'cnpj':
-          response = await workApi.searchCnpj(query)
-          break
-        case 'placa':
-          response = await workApi.searchPlaca(query)
+          response = await ownDataApi.searchCnpj(query)
           break
         case 'phone':
-          response = await workApi.searchTelefone(query)
+          response = await ownDataApi.searchPhone(query)
           break
         case 'email':
-          response = await workApi.searchEmail(query)
+          response = await ownDataApi.searchEmail(query)
           break
         case 'nome':
-          response = await workApi.searchNome(query)
+          response = await ownDataApi.searchName(query)
           break
       }
-      setResult(response?.data)
+
+      if (response.success) {
+        setResult(response.data)
+      } else {
+        setError(response.error || 'Erro ao buscar dados')
+      }
     } catch (err: any) {
       console.error(err)
       setError('Erro ao buscar dados. Verifique o termo pesquisado ou tente novamente.')
@@ -121,7 +123,6 @@ export default function RSLSearchPage() {
               {[
                 { id: 'cpf', label: 'CPF', icon: User },
                 { id: 'cnpj', label: 'CNPJ', icon: FileText },
-                { id: 'placa', label: 'Veículo', icon: Car },
                 { id: 'phone', label: 'Telefone', icon: Phone },
                 { id: 'email', label: 'Email', icon: Mail },
                 { id: 'nome', label: 'Nome', icon: User },
@@ -171,7 +172,10 @@ export default function RSLSearchPage() {
           {result && (
             <div className="bg-[#111] rounded-xl border border-[#222] overflow-hidden">
               <div className="p-4 border-b border-[#222] bg-[#1a1a1a] flex justify-between items-center">
-                <h3 className="font-bold text-lg">Resultados da Busca</h3>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <h3 className="font-bold text-lg">Resultados da Busca - OwnData API</h3>
+                </div>
                 <span className="text-xs text-gray-500 font-mono">JSON RAW</span>
               </div>
               <div className="p-6 overflow-x-auto">
